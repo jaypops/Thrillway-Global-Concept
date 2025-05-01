@@ -7,10 +7,11 @@ export const propertySchema = z.object({
     .min(20, { message: "Description must be at least 20 characters" }),
   price: z.string().min(1, { message: "Price is required" }),
   priceType: z.string().min(1, { message: "Price type is required" }),
-  location: z.string().min(3, { message: "Location is required" }),
+  address: z.string().min(3, { message: "Address is required" }),
   rooms: z.string().optional(),
   bathrooms: z.string().optional(),
   propertyType: z.string().min(1, { message: "Property type is required" }),
+  status: z.string().min(1, { message: "Status is required" }),
   propertySize: z.string().min(1, { message: "Property size is required" }),
   isAvailable: z.boolean().default(true),
   features: z.object({

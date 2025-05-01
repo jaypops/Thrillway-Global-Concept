@@ -1,14 +1,29 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
-import { createProperty } from "./propertyApi";
+import { createProperty } from "./addpropertyApi";
 import { propertySchema } from "./propertySchema";
+import toast from "react-hot-toast";
+import { updateProperty } from "@/services/apiProperty";
+import { Property } from "@/services/type";
 
 type PropertyFormValues = z.infer<typeof propertySchema>;
 
-export const usePropertyForm = () => {
+interface UsePropertyFormOptions {
+  isEditMode?: boolean;
+  id?: string;
+  initialValues?: Partial<PropertyFormValues> | Property;
+  onSuccess?: () => void;
+}
+
+export const usePropertyForm = ({
+  isEditMode = false,
+  id = "",
+  initialValues = {},
+  onSuccess,
+}: UsePropertyFormOptions = {}) => {
   const [images, setImages] = useState<File[]>([]);
   const [documents, setDocuments] = useState<File[]>([]);
   const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
@@ -20,10 +35,11 @@ export const usePropertyForm = () => {
       description: "",
       price: "",
       priceType: "",
-      location: "",
+      address: "",
       rooms: "",
       bathrooms: "",
       propertyType: "",
+      status: "",
       propertySize: "",
       isAvailable: true,
       features: {
@@ -38,22 +54,25 @@ export const usePropertyForm = () => {
       },
       images: undefined,
       documents: undefined,
+      ...initialValues,
     },
   });
-  // useEffect(() => {
-  //   console.log("Registered fields:", Object.keys(form.control._fields));
-  // }, [form]);
 
-  const propertyType = form.watch("propertyType");
-  const isNonResidential = [
-    "land",
-    "warehouse",
-    "industrial",
-    "petrol-station",
-    "parking",
-    "farm"
-  ].includes(propertyType || "");
-  const isOfficeOrShop = ["office", "shop", "restaurant"].includes(propertyType || "");
+  useEffect(() => {
+    if (isEditMode && initialValues) {
+      form.reset({
+        ...initialValues,
+        // Convert numbers to strings for form inputs if needed
+        price: initialValues.price?.toString() || "",
+        propertySize: initialValues.propertySize?.toString() || "",
+      });
+
+      // Handle image previews if they exist
+      if (initialValues.images) {
+        setImagePreviewUrls(initialValues.images);
+      }
+    }
+  }, [isEditMode, initialValues, form]);
 
   const mutation = useMutation({
     mutationFn: async (data: PropertyFormValues) => {
@@ -70,18 +89,26 @@ export const usePropertyForm = () => {
       images.forEach((file) => formData.append("images", file));
       documents.forEach((file) => formData.append("documents", file));
 
-      return createProperty(formData);
+      return isEditMode && id 
+      ? updateProperty(id, formData)
+      : createProperty(formData);
     },
     onSuccess: () => {
-      alert("Property added successfully!");
-      form.reset();
-      setImages([]);
-      setDocuments([]);
-      setImagePreviewUrls([]);
+      toast.success(
+        isEditMode
+          ? "Property updated successfully!"
+          : "Property added successfully!"
+      );
+      if (!isEditMode) {
+        form.reset();
+        setImages([]);
+        setDocuments([]);
+        setImagePreviewUrls([]);
+      }
+      onSuccess?.();
     },
     onError: (error) => {
-      console.error("Error submitting property:", error);
-      alert("Failed to add property. Please try again.");
+      toast.error(error.message);
     },
   });
 
@@ -107,13 +134,7 @@ export const usePropertyForm = () => {
   };
 
   const onSubmit = (data: PropertyFormValues) => {
-    console.log("Form values:", {
-      ...data,
-      images,
-      documents,
-    });
-
-    if (images.length === 0) {
+    if (images.length === 0 && !isEditMode) {
       form.setError("images", { message: "At least one image is required" });
       return;
     }
@@ -125,13 +146,13 @@ export const usePropertyForm = () => {
     images,
     documents,
     imagePreviewUrls,
-    isNonResidential,
-    isOfficeOrShop,
     handleImageUpload,
     handleDocumentUpload,
     removeImage,
     removeDocument,
     onSubmit,
     isLoading: mutation.isPending,
+    onSuccess,
+    isEditMode,
   };
 };

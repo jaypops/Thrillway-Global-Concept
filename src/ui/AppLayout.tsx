@@ -1,12 +1,14 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Outlet } from "react-router-dom";
 import { AppSidebar } from "./Sidebar";
+import { Toaster } from "react-hot-toast";
 
 function AppLayout() {
   return (
     <SidebarProvider>
       <AppSidebar />
       <main className="w-full">
+        <Toaster position="top-center" />
         <SidebarTrigger />
         <Outlet />
       </main>
