@@ -2,19 +2,18 @@ import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useMutation } from "@tanstack/react-query";
-import { createProperty } from "./addpropertyApi";
-import { propertySchema } from "./propertySchema";
+import { useCreateProperty, useEditProperty } from "./usePropertyMutation";
 import toast from "react-hot-toast";
-import { updateProperty } from "@/services/apiProperty";
 import { Property } from "@/services/type";
+import { propertySchema } from "./propertySchema";
+import { FEATURES } from "./PropertyFeatures";
 
 type PropertyFormValues = z.infer<typeof propertySchema>;
 
 interface UsePropertyFormOptions {
   isEditMode?: boolean;
   id?: string;
-  initialValues?: Partial<PropertyFormValues> | Property;
+  initialValues?: Partial<Property>;
   onSuccess?: () => void;
 }
 
@@ -27,6 +26,12 @@ export const usePropertyForm = ({
   const [images, setImages] = useState<File[]>([]);
   const [documents, setDocuments] = useState<File[]>([]);
   const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
+  const [documentPreviewUrls, setDocumentPreviewUrls] = useState<
+    { name: string; url: string }[]
+  >([]);
+
+  const { mutate: createProperty, isPending: isCreating } = useCreateProperty();
+  const { mutate: editProperty, isPending: isEditing } = useEditProperty();
 
   const form = useForm<PropertyFormValues>({
     resolver: zodResolver(propertySchema),
@@ -42,16 +47,7 @@ export const usePropertyForm = ({
       status: "",
       propertySize: "",
       isAvailable: true,
-      features: {
-        swimmingPool: false,
-        garage: false,
-        balcony: false,
-        security: false,
-        garden: false,
-        airConditioning: false,
-        furnished: false,
-        parking: false,
-      },
+      features: {},
       images: undefined,
       documents: undefined,
       ...initialValues,
@@ -60,67 +56,53 @@ export const usePropertyForm = ({
 
   useEffect(() => {
     if (isEditMode && initialValues) {
+      const featuresObj: Record<string, boolean> = {};
+      FEATURES.forEach((feature) => {
+        featuresObj[feature.name] = false; 
+      });
+  
+      if (initialValues.features && typeof initialValues.features === "object") {
+        Object.entries(initialValues.features).forEach(([key, value]) => {
+          if (FEATURES.some((f) => f.name === key)) {
+            featuresObj[key] = !!value; 
+          }
+        });
+      }
+  
+      const existingDocuments = initialValues.documents?.map((url) => ({
+        name: url.split("/").pop() || "Document",
+        url,
+      })) || [];
+  
       form.reset({
         ...initialValues,
-        // Convert numbers to strings for form inputs if needed
         price: initialValues.price?.toString() || "",
         propertySize: initialValues.propertySize?.toString() || "",
+        rooms: initialValues.rooms != null ? String(initialValues.rooms) : "",
+        bathrooms: initialValues.bathrooms != null ? String(initialValues.bathrooms) : "",
+        features: featuresObj,
+        images: initialValues.images || undefined,
       });
-
-      // Handle image previews if they exist
-      if (initialValues.images) {
-        setImagePreviewUrls(initialValues.images);
-      }
+  
+      if (initialValues.images) setImagePreviewUrls(initialValues.images);
+      if (initialValues.documents) setDocumentPreviewUrls(existingDocuments);
+      console.log("initialValues:", initialValues);
     }
   }, [isEditMode, initialValues, form]);
-
-  const mutation = useMutation({
-    mutationFn: async (data: PropertyFormValues) => {
-      const formData = new FormData();
-
-      Object.entries(data).forEach(([key, value]) => {
-        if (key === "features") {
-          formData.append(key, JSON.stringify(value));
-        } else if (key !== "images" && key !== "documents") {
-          formData.append(key, value as string);
-        }
-      });
-
-      images.forEach((file) => formData.append("images", file));
-      documents.forEach((file) => formData.append("documents", file));
-
-      return isEditMode && id 
-      ? updateProperty(id, formData)
-      : createProperty(formData);
-    },
-    onSuccess: () => {
-      toast.success(
-        isEditMode
-          ? "Property updated successfully!"
-          : "Property added successfully!"
-      );
-      if (!isEditMode) {
-        form.reset();
-        setImages([]);
-        setDocuments([]);
-        setImagePreviewUrls([]);
-      }
-      onSuccess?.();
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
-
   const handleImageUpload = (files: File[]) => {
     setImages((prev) => [...prev, ...files]);
     setImagePreviewUrls((prev) => [...prev, ...files.map(URL.createObjectURL)]);
-    form.setValue("images", files);
   };
 
   const handleDocumentUpload = (files: File[]) => {
     setDocuments((prev) => [...prev, ...files]);
-    form.setValue("documents", files);
+    setDocumentPreviewUrls((prev) => [
+      ...prev,
+      ...files.map((file) => ({
+        name: file.name,
+        url: URL.createObjectURL(file),
+      })),
+    ]);
   };
 
   const removeImage = (index: number) => {
@@ -130,15 +112,60 @@ export const usePropertyForm = ({
   };
 
   const removeDocument = (index: number) => {
+    if (documents[index]) {
+      URL.revokeObjectURL(documentPreviewUrls[index].url);
+    }
     setDocuments((prev) => prev.filter((_, i) => i !== index));
+    setDocumentPreviewUrls((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const onSubmit = (data: PropertyFormValues) => {
+  const onSubmit = async (data: PropertyFormValues) => {
     if (images.length === 0 && !isEditMode) {
       form.setError("images", { message: "At least one image is required" });
       return;
     }
-    mutation.mutate(data);
+  
+    const formData = new FormData();
+  
+    Object.entries(data).forEach(([key, value]) => {
+      if (key !== "images" && key !== "documents" && key !== "features") {
+        formData.append(key, String(value));
+      }
+    });
+  
+    formData.append("features", JSON.stringify(data.features));
+  
+    images.forEach((file) => formData.append("images", file));
+    documents.forEach((file) => formData.append("documents", file));
+  
+    if (isEditMode) {
+      editProperty(
+        { id, formData },
+        {
+          onSuccess: () => {
+            toast.success("Property updated successfully!");
+            onSuccess?.();
+          },
+          onError: (error) => {
+            toast.error(error.message);
+          },
+        }
+      );
+    } else {
+      createProperty(formData, {
+        onSuccess: () => {
+          toast.success("Property added successfully!");
+          form.reset();
+          setImages([]);
+          setDocuments([]);
+          setImagePreviewUrls([]);
+          onSuccess?.();
+        },
+        onError: (error) => {
+          toast.error(error.message);
+        },
+      });
+    }
   };
 
   return {
@@ -146,13 +173,13 @@ export const usePropertyForm = ({
     images,
     documents,
     imagePreviewUrls,
+    documentPreviewUrls,
     handleImageUpload,
     handleDocumentUpload,
     removeImage,
     removeDocument,
     onSubmit,
-    isLoading: mutation.isPending,
-    onSuccess,
+    isLoading: isEditMode ? isEditing : isCreating,
     isEditMode,
   };
 };

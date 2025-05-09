@@ -28,14 +28,16 @@ import {Property} from "@/services/type"
 
 interface CreatePropertyFormProps {
   isEditMode?: boolean;
-  initialValues?: Property; // <-- added
-  onSuccess?: () => void; // <-- added
+  initialValues?: Property; 
+  onSuccess?: () => void; 
+  id: string
 }
 
 function CreatePropertyForm({
   isEditMode = false,
   initialValues,
   onSuccess,
+  id
 }: CreatePropertyFormProps) {
 
   const {
@@ -43,6 +45,7 @@ function CreatePropertyForm({
     images,
     documents,
     imagePreviewUrls,
+    documentPreviewUrls,
     handleImageUpload,
     handleDocumentUpload,
     removeImage,
@@ -50,6 +53,7 @@ function CreatePropertyForm({
     onSubmit,
     isLoading,
   } = usePropertyForm({
+    id,
     isEditMode,
     initialValues,
     onSuccess,
@@ -58,7 +62,7 @@ function CreatePropertyForm({
   const propertyType = form.watch("propertyType");
   const isNonResidential =
     propertyType &&
-    ["land", "warehouse", "industrial", "petrol-station", "parking"].includes(
+    ["land", "warehouse", "industrial", "petrol-station", "parking", "restaurant"].includes(
       propertyType
     );
   const isOfficeOrShop = propertyType === "office" || propertyType === "shop";
@@ -341,6 +345,7 @@ function CreatePropertyForm({
                     label="Upload Documents"
                     description="PDF, DOC up to 10MB"
                     accept=".pdf,.doc,.docx"
+                    previewUrls={documentPreviewUrls}
                     files={documents}
                     onFileChange={handleDocumentUpload}
                     onRemove={removeDocument}

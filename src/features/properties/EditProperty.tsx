@@ -9,6 +9,7 @@ interface EditPropertyProps {
   propertyId: string;
   onClose: () => void;
   onSuccess?: () => void;
+  id: string
 }
 
 function EditProperty({ propertyId, onClose }: EditPropertyProps) {
@@ -22,9 +23,7 @@ function EditProperty({ propertyId, onClose }: EditPropertyProps) {
     queryFn: () => getSingleProperty(propertyId),
     enabled: !!propertyId,
   });
-  console.log("Editing Property ID:", propertyId);
 
-  // Add loading and error states
   if (isLoading) return <div className="p-4">Loading property details...</div>;
   if (error)
     return <div className="p-4 text-red-500">Error loading property</div>;
@@ -32,7 +31,7 @@ function EditProperty({ propertyId, onClose }: EditPropertyProps) {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center p-4 z-50 w-full h-screen bg-backdrop-color backdrop-blur-sm transition-all duration-500">
-      <div className="  w-full max-w-6xl h-[100vh]  bg-white rounded-lg shadow-lg p-12 transition-all duration-500">
+      <div className="  w-full max-w-6xl h-[100vh]  bg-white overflow-y-scroll rounded-lg shadow-lg p-12 transition-all duration-500">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Edit Property</h2>
           <button
@@ -44,10 +43,11 @@ function EditProperty({ propertyId, onClose }: EditPropertyProps) {
         </div>
         <CreatePropertyForm
           isEditMode
+          id={propertyId}
           initialValues={property}
           onSuccess={() => {
             queryClient.invalidateQueries({
-              queryKey: ["properties"],
+              queryKey: ["property"],
             });
             onClose();
             toast.success("Property updated successfully");

@@ -1,5 +1,4 @@
 import * as React from "react";
-import { useQuery } from "@tanstack/react-query";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -32,14 +31,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { fetchProperties } from "@/services/apiProperty";
 import EditProperty from "@/features/properties/EditProperty";
 import { Property } from "@/services/type";
-
-const normalizeProperty = (property: Property) => ({
-  ...property,
-  id: property._id || property.id, 
-});
+import {
+  normalizeProperty,
+  useProperty,
+} from "@/features/addProperties/useProperty";
+import DeleteProperty from "@/ui/DeleteProperty";
 
 export const getColumns = (
   onEdit: (property: Property) => void
@@ -117,7 +115,7 @@ export const getColumns = (
     enableHiding: false,
     cell: ({ row }) => {
       const property = normalizeProperty(row.original);
-
+      const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -136,12 +134,22 @@ export const getColumns = (
             <DropdownMenuItem>View details</DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => {
+                console.log(property);
                 onEdit(property);
               }}
             >
               Edit Property
             </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setDeleteDialogOpen(true)}>
+              Delete Property
+            </DropdownMenuItem>
           </DropdownMenuContent>
+          {deleteDialogOpen && (
+            <DeleteProperty
+              _id={property._id}
+              onClose={() => setDeleteDialogOpen(false)}
+            />
+          )}
         </DropdownMenu>
       );
     },
@@ -149,24 +157,17 @@ export const getColumns = (
 ];
 
 function Properties() {
-  const {
-    data = [],
-    isLoading,
-    isError,
-    error,
-  } = useQuery({
-    queryKey: ["properties"],
-    queryFn: async () => {
-      const properties = await fetchProperties();
-      return properties.map(normalizeProperty);
-    },
-  });
-
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  );
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-  const [editingPropertyId, setEditingPropertyId] = React.useState<string | null>(null);
+  const [editingPropertyId, setEditingPropertyId] = React.useState<
+    string | null
+  >(null);
+  const { isLoading, isError, data, error } = useProperty();
 
   const table = useReactTable({
     data,

@@ -1,5 +1,15 @@
+export type FeatureName =
+  | "swimmingPool"
+  | "garage"
+  | "balcony"
+  | "security"
+  | "garden"
+  | "airConditioning"
+  | "furnished"
+  | "parking";
+
 export type Property = {
-  _id: string;  
+  _id: string;
   id?: string;
   title: string;
   description: string;
@@ -12,21 +22,7 @@ export type Property = {
   bathrooms: string;
   propertySize: string;
   isAvailable: boolean;
-  features: {
-    swimmingPool: boolean;
-    garage: boolean;
-    balcony: boolean;
-    security: boolean;
-    garden: boolean;
-    airConditioning: boolean;
-    furnished: boolean;
-    parking: boolean;
-  };
+  features:  Record<FeatureName, boolean>;
   images?: string[];
   documents?: string[];
 };
-
-
-
-
-
