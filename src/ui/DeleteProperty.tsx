@@ -1,40 +1,56 @@
 import { Button } from "@/components/ui/button";
-import { useDeleteProperty } from "@/features/addProperties/usePropertyMutation";
+import {
+  useDeleteProperty,
+  useDeleteAllProperty,
+} from "@/features/addProperties/usePropertyMutation";
 import { Property } from "@/services/type";
 
 interface DeletePropertyProps {
-  _id: Property["_id"];
+  _id?: Property["_id"]; 
+  ids?: Property["_id"][]; 
   onClose: () => void;
 }
 
-function DeleteProperty({ _id, onClose }: DeletePropertyProps) {
-  const { mutate: deleteProperty, isPending: isdeleting } = useDeleteProperty();
+function DeleteProperty({ _id, ids, onClose }: DeletePropertyProps) {
+  const { mutate: deleteProperty, isPending: isDeletingSingle } = useDeleteProperty();
+  const { mutate: deleteAllProperty, isPending: isDeletingBulk } = useDeleteAllProperty();
+
+  const isBulkDeletion = !!ids && ids.length > 0;
+  const isPending = isDeletingSingle || isDeletingBulk;
+
   const handleDelete = async () => {
     try {
-      await deleteProperty({ id: _id });
-      onClose();
+      if (isBulkDeletion) {
+        await deleteAllProperty(ids!, {
+          onSuccess: () => onClose(),
+        });
+      } else if (_id) {
+        await deleteProperty({ id: _id }, {
+          onSuccess: () => onClose(),
+        });
+      }
     } catch (error) {
       console.error("Delete failed:", error);
     }
   };
+
   return (
     <div className="fixed inset-0 flex items-center justify-center p-4 z-50 w-full h-screen bg-backdrop-color backdrop-blur-sm transition-all duration-500">
-      <div className="  w-full max-w-2xl h-[30vh]  bg-white rounded-lg shadow-lg p-10 transition-all duration-500">
+      <div className="w-full max-w-[35rem] h-[25vh] bg-white rounded-lg shadow-lg p-6 transition-all duration-500">
         <div className="space-y-2">
           <p className="font-semibold">Are you absolutely sure?</p>
-          <h3 className="font-medium">
-            This action cannot be undone. This will permanently delete this
-            property data from the server.
+          <h3 className="font-medium pl-2">
+            This action cannot be undone. This will permanently delete{" "}
+            {isBulkDeletion ? `${ids!.length} properties` : "this property"} from the server.
           </h3>
-          <div className="flex gap-4 flex-row-reverse space-y-4  ">
- 
+          <div className="flex gap-4 flex-row-reverse space-y-4">
             <Button
               className="cursor-pointer"
               variant="destructive"
-              disabled={isdeleting}
+              disabled={isPending}
               onClick={handleDelete}
             >
-              {isdeleting ? "Deleting..." : "Continue"}
+              {isPending ? "Deleting..." : "Continue"}
             </Button>
             <Button
               variant="outline"

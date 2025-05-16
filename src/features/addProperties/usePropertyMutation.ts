@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { createProperty, deleteProperty, editProperty } from "@/services/apiProperty";
+import { createProperty, deleteAllProperty, deleteProperty, editProperty } from "@/services/apiProperty";
 
 export function useCreateProperty() {
   const queryClient = useQueryClient();
@@ -51,3 +51,19 @@ export function useDeleteProperty() {
     }
   });
 }
+
+export function useDeleteAllProperty() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (propertyIds: string[]) => deleteAllProperty(propertyIds),
+    onSuccess: () => {
+      toast.success("Selected properties deleted successfully");
+      queryClient.invalidateQueries({ queryKey: ["properties"] });
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to delete selected properties");
+      console.error("Deletion error:", error);
+    },
+  });
+}
+

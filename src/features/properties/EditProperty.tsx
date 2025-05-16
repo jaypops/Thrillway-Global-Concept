@@ -1,30 +1,19 @@
-import { useQuery } from "@tanstack/react-query";
-import CreatePropertyForm from "../addProperties/CreatePropertyForm";
 import { useQueryClient } from "@tanstack/react-query";
-import { getSingleProperty } from "@/services/apiProperty";
-import { Property } from "@/services/type";
-import toast from "react-hot-toast";
+import { usePropertyById } from "../addProperties/usePropertyById";
+import CreatePropertyForm from "../addProperties/CreatePropertyForm";
 
 interface EditPropertyProps {
   propertyId: string;
   onClose: () => void;
   onSuccess?: () => void;
-  id: string
+  id?: string;
 }
 
 function EditProperty({ propertyId, onClose }: EditPropertyProps) {
   const queryClient = useQueryClient();
-  const {
-    data: property,
-    isLoading,
-    error,
-  } = useQuery<Property>({
-    queryKey: ["properties", propertyId],
-    queryFn: () => getSingleProperty(propertyId),
-    enabled: !!propertyId,
-  });
+  const { data: property, isPending, error } = usePropertyById({ propertyId });
 
-  if (isLoading) return <div className="p-4">Loading property details...</div>;
+  if (isPending) return <div className="p-4">Loading property details...</div>;
   if (error)
     return <div className="p-4 text-red-500">Error loading property</div>;
   if (!property) return <div className="p-4">Property not found</div>;
@@ -50,7 +39,6 @@ function EditProperty({ propertyId, onClose }: EditPropertyProps) {
               queryKey: ["property"],
             });
             onClose();
-            toast.success("Property updated successfully");
           }}
         />
       </div>

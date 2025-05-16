@@ -32,15 +32,21 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import EditProperty from "@/features/properties/EditProperty";
+import { FaRegTrashAlt } from "react-icons/fa";
 import { Property } from "@/services/type";
 import {
   normalizeProperty,
   useProperty,
 } from "@/features/addProperties/useProperty";
 import DeleteProperty from "@/ui/DeleteProperty";
+import { useDeleteAllProperty } from "@/features/addProperties/usePropertyMutation";
+import ViewProperty from "@/features/properties/ViewProperty";
 
 export const getColumns = (
-  onEdit: (property: Property) => void
+  onEdit: (property: Property) => void,
+  setDeleteDialogOpen: (open: boolean) => void,
+  setDeleteIds: (ids: string[]) => void,
+  setviewProperty: (id: string | null) => void
 ): ColumnDef<Property>[] => [
   {
     id: "select",
@@ -115,7 +121,6 @@ export const getColumns = (
     enableHiding: false,
     cell: ({ row }) => {
       const property = normalizeProperty(row.original);
-      const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -131,25 +136,26 @@ export const getColumns = (
               Copy property ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View details</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setviewProperty(property._id)}>
+              View details
+            </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => {
-                console.log(property);
                 onEdit(property);
+                setviewProperty(null);
               }}
             >
               Edit Property
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setDeleteDialogOpen(true)}>
+            <DropdownMenuItem
+              onClick={() => {
+                setDeleteIds([property._id]);
+                setDeleteDialogOpen(true);
+              }}
+            >
               Delete Property
             </DropdownMenuItem>
           </DropdownMenuContent>
-          {deleteDialogOpen && (
-            <DeleteProperty
-              _id={property._id}
-              onClose={() => setDeleteDialogOpen(false)}
-            />
-          )}
         </DropdownMenu>
       );
     },
@@ -164,16 +170,28 @@ function Properties() {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
+
   const [editingPropertyId, setEditingPropertyId] = React.useState<
     string | null
   >(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
+  const [deleteIds, setDeleteIds] = React.useState<string[]>([]);
+  const [viewProperty, setviewProperty] = React.useState<string | null>(null);
+
+  const deleteAllPropertyMutation = useDeleteAllProperty();
   const { isLoading, isError, data, error } = useProperty();
 
   const table = useReactTable({
     data,
-    columns: getColumns((property) => {
-      setEditingPropertyId(property._id);
-    }),
+    columns: getColumns(
+      (property) => {
+        setEditingPropertyId(property._id);
+        setviewProperty(property._id);
+      },
+      setDeleteDialogOpen,
+      setDeleteIds,
+      setviewProperty
+    ),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -190,6 +208,15 @@ function Properties() {
     },
   });
 
+  const handleDeleteSelected = () => {
+    const selectedRows = table.getFilteredSelectedRowModel().rows;
+    const selectedIds = selectedRows.map((row) => row.original._id);
+    if (selectedIds.length > 0) {
+      setDeleteIds(selectedIds);
+      setDeleteDialogOpen(true);
+    }
+  };
+
   if (isLoading) return <div className="p-4">Loading...</div>;
   if (isError) {
     console.error("Error loading properties:", error);
@@ -198,7 +225,20 @@ function Properties() {
 
   return (
     <div className="w-full p-4">
-      <h1 className="text-2xl font-bold mb-4">Properties</h1>
+      <div className="flex justify-between items-center text-2xl">
+        <h1 className="text-2xl font-bold mb-4">Properties</h1>
+        <Button
+          className="cursor-pointer"
+          variant="ghost"
+          onClick={handleDeleteSelected}
+          disabled={
+            table.getFilteredSelectedRowModel().rows.length === 0 ||
+            deleteAllPropertyMutation.isPending
+          }
+        >
+          <FaRegTrashAlt />
+        </Button>
+      </div>
       <div className="flex items-center py-4">
         <Input
           placeholder="Filter addresses..."
@@ -279,11 +319,28 @@ function Properties() {
           </TableBody>
         </Table>
       </div>
+      {deleteDialogOpen && (
+        <DeleteProperty
+          _id={deleteIds.length === 1 ? deleteIds[0] : undefined}
+          ids={deleteIds.length > 1 ? deleteIds : undefined}
+          onClose={() => {
+            setDeleteDialogOpen(false);
+            setDeleteIds([]);
+            setRowSelection({});
+          }}
+        />
+      )}
       {editingPropertyId && (
         <EditProperty
           propertyId={editingPropertyId}
           onClose={() => setEditingPropertyId(null)}
           onSuccess={() => setEditingPropertyId(null)}
+        />
+      )}
+      {viewProperty && (
+        <ViewProperty
+          propertyId={viewProperty}
+          onClose={() => setviewProperty(null)}
         />
       )}
       <div className="flex items-center justify-end space-x-2 py-4">

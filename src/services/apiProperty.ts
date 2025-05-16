@@ -81,7 +81,6 @@ export const editProperty = async ({
   id: string;
   formData: FormData;
 }): Promise<Property> => {
-  console.log("editProperty called with id:", id);
   try {
     const images: File[] = Array.from(
       formData.getAll("images") as File[]
@@ -101,10 +100,19 @@ export const editProperty = async ({
     }
 
     const existingProperty = await getSingleProperty(id);
-    console.log(existingProperty);
 
     const featuresJson = formData.get("features") as string;
     const features = featuresJson ? JSON.parse(featuresJson) : {};
+
+    const removedImagesJson = formData.get("removedImages") as string;
+    const removedDocumentsJson = formData.get("removedDocuments") as string;
+    const removedImages = removedImagesJson
+      ? JSON.parse(removedImagesJson)
+      : [];
+    const removedDocuments = removedDocumentsJson
+      ? JSON.parse(removedDocumentsJson)
+      : [];
+
 
     const propertyData = {
       title: formData.get("title") as string,
@@ -119,11 +127,20 @@ export const editProperty = async ({
       propertySize: formData.get("propertySize") as string,
       isAvailable: formData.get("isAvailable") === "true",
       features,
-      images: imageUrls.length > 0 ? imageUrls : existingProperty.images || [],
-      documents:
-        documentUrls.length > 0
-          ? documentUrls
-          : existingProperty.documents || [],
+      images: [
+        ...(existingProperty.images || []).filter(
+          (url) => !removedImages.includes(url)
+        ),
+        ...imageUrls,
+      ],
+      documents: [
+        ...(existingProperty.documents || []).filter(
+          (url) => !removedDocuments.includes(url)
+        ),
+        ...documentUrls,
+      ],
+      removedImages,
+      removedDocuments, 
     };
     const response = await axios.patch(
       `${API_BASE_URL}/propertys/${id}`,
@@ -153,5 +170,14 @@ export const deleteProperty = async ({
   id: string;
 }): Promise<Property> => {
   const res = await axios.delete(`${API_BASE_URL}/propertys/${id}`);
+  return res.data;
+};
+
+export const deleteAllProperty = async (
+  propertyIds: string[]
+): Promise<Property[]> => {
+  const res = await axios.delete(`${API_BASE_URL}/propertys`, {
+    data: { ids: propertyIds },
+  });
   return res.data;
 };

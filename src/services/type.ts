@@ -13,7 +13,7 @@ export type Property = {
   id?: string;
   title: string;
   description: string;
-  status: "pending" | "processing" | "success" | "failed";
+  status: string;
   address: string;
   priceType: string;
   propertyType: string;
@@ -23,6 +23,6 @@ export type Property = {
   propertySize: string;
   isAvailable: boolean;
   features:  Record<FeatureName, boolean>;
-  images?: string[];
+  images?: string[] | undefined;
   documents?: string[];
 };

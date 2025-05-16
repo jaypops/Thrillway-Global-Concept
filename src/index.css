@@ -1,8 +1,13 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@plugin "daisyui";
+
 @custom-variant dark (&:is(.dark *));
 
+.col{
+  color: gray;
+}
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
