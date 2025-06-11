@@ -2,18 +2,20 @@ import { Button } from "@/components/ui/button";
 import {
   useDeleteProperty,
   useDeleteAllProperty,
-} from "@/features/addProperties/usePropertyMutation";
+} from "@/features/usePropertyMutation";
 import { Property } from "@/services/type";
 
 interface DeletePropertyProps {
-  _id?: Property["_id"]; 
-  ids?: Property["_id"][]; 
+  _id?: Property["_id"];
+  ids?: Property["_id"][];
   onClose: () => void;
 }
 
 function DeleteProperty({ _id, ids, onClose }: DeletePropertyProps) {
-  const { mutate: deleteProperty, isPending: isDeletingSingle } = useDeleteProperty();
-  const { mutate: deleteAllProperty, isPending: isDeletingBulk } = useDeleteAllProperty();
+  const { mutate: deleteProperty, isPending: isDeletingSingle } =
+    useDeleteProperty();
+  const { mutate: deleteAllProperty, isPending: isDeletingBulk } =
+    useDeleteAllProperty();
 
   const isBulkDeletion = !!ids && ids.length > 0;
   const isPending = isDeletingSingle || isDeletingBulk;
@@ -25,9 +27,12 @@ function DeleteProperty({ _id, ids, onClose }: DeletePropertyProps) {
           onSuccess: () => onClose(),
         });
       } else if (_id) {
-        await deleteProperty({ id: _id }, {
-          onSuccess: () => onClose(),
-        });
+        await deleteProperty(
+          { id: _id },
+          {
+            onSuccess: () => onClose(),
+          }
+        );
       }
     } catch (error) {
       console.error("Delete failed:", error);
@@ -41,7 +46,8 @@ function DeleteProperty({ _id, ids, onClose }: DeletePropertyProps) {
           <p className="font-semibold">Are you absolutely sure?</p>
           <h3 className="font-medium pl-2">
             This action cannot be undone. This will permanently delete{" "}
-            {isBulkDeletion ? `${ids!.length} properties` : "this property"} from the server.
+            {isBulkDeletion ? `${ids!.length} properties` : "this property"}{" "}
+            from the server.
           </h3>
           <div className="flex gap-4 flex-row-reverse space-y-4">
             <Button

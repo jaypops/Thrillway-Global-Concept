@@ -4,21 +4,17 @@ import { useQuery } from "@tanstack/react-query";
 
 export const normalizeProperty = (property: Property) => ({
   ...property,
-  id: property._id || property.id,
+  id: property._id || property.id
 });
 
 export function useProperty() {
   const {
     data = [],
-    isLoading,
-    isError,
+    isPending,
     error,
   } = useQuery({
     queryKey: ["properties"],
-    queryFn: async () => {
-      const properties = await fetchProperties();
-      return properties.map(normalizeProperty);
-    },
+    queryFn: fetchProperties
   });
-  return { isLoading, isError, data, error };
+  return { isPending, data, error };
 }

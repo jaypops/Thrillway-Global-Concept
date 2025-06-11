@@ -15,7 +15,7 @@ import {
 } from "react-icons/fa";
 import { MdGarage } from "react-icons/md";
 import { FaHouse, FaRegClipboard } from "react-icons/fa6";
-import { usePropertyById } from "../addProperties/usePropertyById";
+import { usePropertyById } from "../usePropertyById";
 import Autoplay from "embla-carousel-autoplay";
 import { IconType } from "react-icons";
 import { Card, CardContent } from "@/components/ui/card";
@@ -159,31 +159,33 @@ function ViewProperty({ propertyId, onClose }: ViewPropertyProps) {
             </p>
           </div>
           <div className="flex flex-wrap gap-4">
-              {PropertyList.filter((item) => {
-                const value = getNestedProperty(property, item.key);
-                return !item.key.startsWith("features.") || value === true;
-              }).map((item) => {
-                const value = getNestedProperty(property, item.key);
-                return (
-                  <span
-                    className="border border-transparent rounded-lg flex gap-x-2 p-2 items-center bg-gray-300"
-                    key={item.key}
-                  >
-                    <item.icon className="text-gray-600" />
-                    <h3 className="font-medium">
-                      {item.label}:{" "}
-                      {value != null && value !== ""
-                        ? typeof value === "number"
-                          ? value.toLocaleString()
-                          : typeof value === "boolean"
-                            ? value ? "Yes" : "No"
-                            : value
-                        : "N/A"}
-                    </h3>
-                  </span>
-                );
-              })}
-            </div>
+            {PropertyList.filter((item) => {
+              const value = getNestedProperty(property, item.key);
+              return !item.key.startsWith("features.") || value === true;
+            }).map((item) => {
+              const value = getNestedProperty(property, item.key);
+              return (
+                <span
+                  className="border border-transparent rounded-lg flex gap-x-2 p-2 items-center bg-gray-300"
+                  key={item.key}
+                >
+                  <item.icon className="text-gray-600" />
+                  <h3 className="font-medium">
+                    {item.label}:{" "}
+                    {value != null && value !== ""
+                      ? typeof value === "number"
+                        ? value.toLocaleString()
+                        : typeof value === "boolean"
+                        ? value
+                          ? "Yes"
+                          : "No"
+                        : value
+                      : "N/A"}
+                  </h3>
+                </span>
+              );
+            })}
+          </div>
           <div className="pt-6">
             <h3 className="text-lg font-semibold mb-2">Documents</h3>
             {property.documents && property.documents.length > 0 ? (

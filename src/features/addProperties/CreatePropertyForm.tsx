@@ -24,22 +24,21 @@ import { FileUploader } from "@/features/addProperties/FileUploader";
 import { PropertyFeatures } from "@/features/addProperties/PropertyFeatures";
 import { usePropertyForm } from "@/features/addProperties/usePropertyForm";
 import { Switch } from "@/components/ui/switch";
-import {Property} from "@/services/type"
+import { Property } from "@/services/type";
 
 interface CreatePropertyFormProps {
   isEditMode?: boolean;
-  initialValues?: Property; 
-  onSuccess?: () => void; 
-  id: string
+  initialValues?: Property;
+  onSuccess?: () => void;
+  id: string;
 }
 
 function CreatePropertyForm({
   isEditMode = false,
   initialValues,
   onSuccess,
-  id
+  id,
 }: CreatePropertyFormProps) {
-
   const {
     form,
     images,
@@ -62,9 +61,14 @@ function CreatePropertyForm({
   const propertyType = form.watch("propertyType");
   const isNonResidential =
     propertyType &&
-    ["land", "warehouse", "industrial", "petrol-station", "parking", "restaurant"].includes(
-      propertyType
-    );
+    [
+      "land",
+      "warehouse",
+      "industrial",
+      "petrol-station",
+      "parking",
+      "restaurant",
+    ].includes(propertyType);
   const isOfficeOrShop = propertyType === "office" || propertyType === "shop";
   return (
     <div>

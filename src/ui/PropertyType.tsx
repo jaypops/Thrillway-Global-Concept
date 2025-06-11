@@ -23,7 +23,11 @@ function PropertyType() {
       render={({ field }) => (
         <FormItem>
           <FormLabel>Property Type</FormLabel>
-          <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+          <Select
+            onValueChange={field.onChange}
+            defaultValue={field.value}
+            value={field.value}
+          >
             <FormControl>
               <SelectTrigger className="w-full cursor-pointer">
                 <SelectValue placeholder="Select" />

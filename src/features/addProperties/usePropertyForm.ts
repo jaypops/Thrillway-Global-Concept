@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useCreateProperty, useEditProperty } from "./usePropertyMutation";
+import { useCreateProperty, useEditProperty } from "../usePropertyMutation";
 import toast from "react-hot-toast";
 import { Property } from "@/services/type";
 import { propertySchema } from "./propertySchema";
@@ -63,24 +63,31 @@ export const usePropertyForm = ({
         featuresObj[feature.name] = false;
       });
 
-      if (initialValues.features && typeof initialValues.features === "object") {
+      if (
+        initialValues.features &&
+        typeof initialValues.features === "object"
+      ) {
         Object.entries(initialValues.features).forEach(([key, value]) => {
           if (FEATURES.some((f) => f.name === key)) {
             featuresObj[key] = !!value;
           }
         });
       }
-      const existingDocuments = initialValues.documents?.map((url) => ({
-        name: url.split("/").pop() || "Document",
-        url,
-      })) || [];
+      const existingDocuments =
+        initialValues.documents?.map((url) => ({
+          name: url.split("/").pop() || "Document",
+          url,
+        })) || [];
 
       form.reset({
         ...initialValues,
         price: initialValues.price?.toString() || "",
         propertySize: initialValues.propertySize?.toString() || "",
         rooms: initialValues.rooms != null ? String(initialValues.rooms) : "",
-        bathrooms: initialValues.bathrooms != null ? String(initialValues.bathrooms) : "",
+        bathrooms:
+          initialValues.bathrooms != null
+            ? String(initialValues.bathrooms)
+            : "",
         features: featuresObj,
         images: initialValues.images || undefined,
       });
@@ -123,7 +130,10 @@ export const usePropertyForm = ({
     setImages((prev) => prev.filter((_, i) => i !== index));
     setImagePreviewUrls((prev) => prev.filter((_, i) => i !== index));
 
-    if (isEditMode && initialValues.images?.map(cleanUrl).includes(cleanedUrl)) {
+    if (
+      isEditMode &&
+      initialValues.images?.map(cleanUrl).includes(cleanedUrl)
+    ) {
       setRemovedImages((prev) => {
         const newRemovedImages = [...prev, cleanedUrl];
         return newRemovedImages;
@@ -140,7 +150,10 @@ export const usePropertyForm = ({
     setDocuments((prev) => prev.filter((_, i) => i !== index));
     setDocumentPreviewUrls((prev) => prev.filter((_, i) => i !== index));
 
-    if (isEditMode && initialValues.documents?.map(cleanUrl).includes(cleanedUrl)) {
+    if (
+      isEditMode &&
+      initialValues.documents?.map(cleanUrl).includes(cleanedUrl)
+    ) {
       setRemovedDocuments((prev) => {
         const newRemovedDocuments = [...prev, cleanedUrl];
         return newRemovedDocuments;

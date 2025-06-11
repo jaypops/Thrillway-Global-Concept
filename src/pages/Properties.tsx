@@ -37,10 +37,10 @@ import { Property } from "@/services/type";
 import {
   normalizeProperty,
   useProperty,
-} from "@/features/addProperties/useProperty";
-import DeleteProperty from "@/ui/DeleteProperty";
-import { useDeleteAllProperty } from "@/features/addProperties/usePropertyMutation";
+} from "@/features/useProperty";
+import { useDeleteAllProperty } from "@/features/usePropertyMutation";
 import ViewProperty from "@/features/properties/ViewProperty";
+import DeleteProperty from "@/features/properties/DeleteProperty";
 
 export const getColumns = (
   onEdit: (property: Property) => void,

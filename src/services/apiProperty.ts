@@ -7,7 +7,7 @@ export const fetchProperties = async (): Promise<Property[]> => {
   return res.data;
 };
 
-const uploadFile = async (file: File): Promise<string> => {
+export const uploadFile = async (file: File): Promise<string> => {
   try {
     const res = await fetch(`${API_BASE_URL}/s3Url`);
     const { url } = await res.json();

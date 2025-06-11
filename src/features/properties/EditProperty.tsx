@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { usePropertyById } from "../addProperties/usePropertyById";
+import { usePropertyById } from "../usePropertyById";
 import CreatePropertyForm from "../addProperties/CreatePropertyForm";
 
 interface EditPropertyProps {
