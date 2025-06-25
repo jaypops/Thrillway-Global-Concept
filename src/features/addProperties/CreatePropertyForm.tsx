@@ -89,6 +89,7 @@ function CreatePropertyForm({
                     <FormLabel>Property Title</FormLabel>
                     <FormControl>
                       <Input
+                        disabled={isLoading}
                         placeholder="Luxury 3-Bedroom Apartment"
                         {...field}
                       />
@@ -106,7 +107,12 @@ function CreatePropertyForm({
                     <FormItem>
                       <FormLabel>Price</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder="250000" {...field} />
+                        <Input
+                          type="number"
+                          disabled={isLoading}
+                          placeholder="250000"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -122,10 +128,13 @@ function CreatePropertyForm({
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
+                        disabled={isLoading}
                       >
                         <FormControl>
                           <SelectTrigger className="w-full cursor-pointer">
-                            <SelectValue placeholder="Select" />
+                            <SelectValue
+                              placeholder="Select"
+                            />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -150,7 +159,11 @@ function CreatePropertyForm({
                   <FormItem>
                     <FormLabel>Address</FormLabel>
                     <FormControl>
-                      <Input placeholder="Lagos..." {...field} />
+                      <Input
+                        placeholder="Lagos..."
+                        disabled={isLoading}
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -166,6 +179,7 @@ function CreatePropertyForm({
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
+                        disabled={isLoading}
                       >
                         <FormControl>
                           <SelectTrigger className="w-full cursor-pointer">
@@ -207,6 +221,7 @@ function CreatePropertyForm({
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
+                        disabled={isLoading}
                       >
                         <FormControl>
                           <SelectTrigger className="w-full cursor-pointer">
@@ -239,6 +254,7 @@ function CreatePropertyForm({
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
+                          disabled={isLoading}
                         >
                           <FormControl>
                             <SelectTrigger className="w-full cursor-pointer">
@@ -267,6 +283,7 @@ function CreatePropertyForm({
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
+                          disabled={isLoading}
                         >
                           <FormControl>
                             <SelectTrigger className="w-full cursor-pointer">
@@ -295,7 +312,12 @@ function CreatePropertyForm({
                   <FormItem>
                     <FormLabel>Property Size (sq m)</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="120" {...field} />
+                      <Input
+                        type="number"
+                        placeholder="120"
+                        disabled={isLoading}
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -315,6 +337,7 @@ function CreatePropertyForm({
                         placeholder="Describe the property..."
                         className="min-h-[150px]"
                         {...field}
+                        disabled={isLoading}
                       />
                     </FormControl>
                     <FormMessage />
@@ -387,6 +410,7 @@ function CreatePropertyForm({
                   <Switch
                     checked={field.value}
                     onCheckedChange={field.onChange}
+                    disabled={isLoading}
                     className="cursor-pointer"
                   />
                 </FormControl>

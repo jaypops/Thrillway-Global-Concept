@@ -1,5 +1,6 @@
 import { createAccount, deleteAccount } from "@/services/apiAccount";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from 'react-router-dom';
 import toast from "react-hot-toast";
 
 export function useCreateAccount() {
@@ -24,13 +25,15 @@ export function useCreateAccount() {
 
 export function useDeleteAccount() {
   const queryClient = useQueryClient();
-
+  const navigate = useNavigate()
   return useMutation({
     mutationFn: ({ id }: { id: string }) => 
       deleteAccount({ id }),
     onSuccess: () => {
       toast.success("Account deleted successfully");
+   
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
+      navigate('/login', { replace: true });
     },
     onError: (error: Error) => {
       toast.error(error.message || "Failed to delete account");

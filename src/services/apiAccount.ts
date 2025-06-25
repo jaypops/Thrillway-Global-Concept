@@ -1,62 +1,109 @@
-import { uploadFile } from "./apiProperty";
-import axios from "axios";
-import { Account } from "./type";
+import { uploadFile } from './apiProperty';
+import axios from 'axios';
+import { Account, LoginResponse } from './type';
 
-const API_BASE_URL = "http://localhost:3000/api";
+const API_BASE_URL = 'http://localhost:3000/api';
+
+type LoginData = Pick<Account, 'username' | 'password'>;
+
+// Add token to Axios headers
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
 
 export const fetchStaffDetails = async (): Promise<Account[]> => {
   try {
-    const res = await axios.get(`${API_BASE_URL}/account`);
-    console.log("API Response:", res.data); 
+    const res = await axios.get(`${API_BASE_URL}/account`, {
+      headers: getAuthHeaders(),
+    });
+    console.log('API Response:', res.data);
     return res.data;
   } catch (error) {
-    console.error("Fetch staff details failed:", error);
+    console.error('Fetch staff details failed:', error);
     throw error;
   }
 };
 
 export const createAccount = async (formData: FormData): Promise<Account> => {
   try {
-    const image = formData.get("image") as File | null;
+    const image = formData.get('image') as File | null;
     let imageUrl: string | undefined;
-    
+
     if (image) {
       imageUrl = await uploadFile(image);
     }
 
     const accountData: Account = {
-      name: formData.get("name") as string,
-      username: formData.get("username") as string,
-      telephone: formData.get("telephone") as string,
-      emergencyContact: formData.get("emergencyContact") as string,
-      email: formData.get("email") as string,
-      address: formData.get("address") as string,
+      name: formData.get('name') as string,
+      username: formData.get('username') as string,
+      telephone: formData.get('telephone') as string,
+      emergencyContact: formData.get('emergencyContact') as string,
+      email: formData.get('email') as string,
+      address: formData.get('address') as string,
+      password: formData.get('password') as string,
       images: imageUrl,
-      startDate: formData.get("startDate") as string, 
+      startDate: formData.get('startDate') as string,
     };
 
-    const response = await axios.post<Account>(
-      `${API_BASE_URL}/account`, 
-      accountData,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const response = await axios.post<Account>(`${API_BASE_URL}/account`, accountData, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
     return response.data;
   } catch (error) {
-    console.error("Account creation failed:", error);
-    throw error; 
+    console.error('Account creation failed:', error);
+    throw error;
   }
 };
 
-export const deleteAccount = async ({
-  id,
-}: {
-  id: string;
-}): Promise<Account> => {
-  const res = await axios.delete(`${API_BASE_URL}/account/${id}`);
+export const deleteAccount = async ({ id }: { id: string }): Promise<Account> => {
+  const res = await axios.delete(`${API_BASE_URL}/account/${id}`, {
+    headers: getAuthHeaders(),
+  });
   return res.data;
+};
+
+export const loginAccount = async (formData: FormData): Promise<Account> => {
+  try {
+    const loginData: LoginData = {
+      username: formData.get('username') as string,
+      password: formData.get('password') as string,
+    };
+
+    const response = await axios.post<LoginResponse>(`${API_BASE_URL}/account/login`, loginData, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    // Store token
+    localStorage.setItem('token', response.data.token);
+    return response.data.account;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const errorMessage = error.response?.data?.message || 'Login failed';
+      throw new Error(errorMessage);
+    }
+    throw new Error('An unexpected error occurred');
+  }
+};
+
+export const verifyToken = async (): Promise<boolean> => {
+  try {
+    await axios.get(`${API_BASE_URL}/auth/account/verify`, {
+      headers: getAuthHeaders(),
+    });
+    return true;
+  } catch (error) {
+    console.error('Token verification failed:', error);
+    localStorage.removeItem('token');
+    return false;
+  }
+};
+
+export const logout = () => {
+  localStorage.removeItem('token');
 };

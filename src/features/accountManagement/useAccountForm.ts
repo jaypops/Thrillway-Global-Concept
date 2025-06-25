@@ -18,7 +18,7 @@ export const useAccountForm = ({
   initialValues = {},
 }: UseAccountFormOptions = {}) => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [image, setImage] = useState<File | null>(null); 
+  const [image, setImage] = useState<File | null>(null);
   const { mutate: createAccount, isPending: isCreating } = useCreateAccount();
 
   const parsedInitialValues = {
@@ -39,20 +39,21 @@ export const useAccountForm = ({
       emergencyContact: "",
       email: "",
       address: "",
+      password: "",
       image: undefined,
       ...parsedInitialValues,
     },
   });
 
   const handleImageUpload = (file: File) => {
-    setImage(file); 
-    form.setValue("image", file); 
+    setImage(file);
+    form.setValue("image", file);
   };
 
   const removeImg = () => {
-    setImage(null); 
-    form.setValue("image", undefined); 
-    form.trigger("image"); 
+    setImage(null);
+    form.setValue("image", undefined);
+    form.trigger("image");
   };
 
   async function onSubmit(data: FormValues) {
@@ -61,15 +62,15 @@ export const useAccountForm = ({
 
     try {
       Object.entries(data).forEach(([key, value]) => {
-        if (key === 'startDate' && value) {
-          formData.append(key, format(value, 'yyyy-MM-dd'));
-        } else if (key !== 'image' && value) {
+        if (key === "startDate" && value) {
+          formData.append(key, format(value, "yyyy-MM-dd"));
+        } else if (key !== "image" && value) {
           formData.append(key, value.toString());
         }
       });
-  
+
       if (image) {
-        formData.append('image', image);
+        formData.append("image", image);
       }
 
       createAccount(formData, {
@@ -98,6 +99,6 @@ export const useAccountForm = ({
     isCreating,
     image,
     setImage,
-    removeImg
+    removeImg,
   };
 };

@@ -35,6 +35,14 @@ export type Account = {
   emergencyContact: string;
   email: string;
   address: string;
+  password?: string;
   images?: string;
   startDate: string;
 };
+
+export interface LoginResponse {
+  success: boolean;
+  message: string;
+  token: string;
+  account: Account;
+}

@@ -1,6 +1,5 @@
 import { CalendarIcon, Loader2, X } from "lucide-react";
 import { format } from "date-fns";
-
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -36,8 +35,8 @@ function CreateAccountForm({ setShowForm }: CreateAccountFormProps) {
 
   const handleSubmit = async (data: any) => {
     try {
-      await onSubmit(data); 
-      setShowForm(false); 
+      await onSubmit(data);
+      setShowForm(false);
     } catch (error) {
       console.error("Submission failed:", error);
     }
@@ -55,7 +54,11 @@ function CreateAccountForm({ setShowForm }: CreateAccountFormProps) {
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter your full name" {...field} />
+                    <Input
+                      placeholder="Enter your full name"
+                      disabled={isCreating}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -68,7 +71,11 @@ function CreateAccountForm({ setShowForm }: CreateAccountFormProps) {
                 <FormItem>
                   <FormLabel>Username</FormLabel>
                   <FormControl>
-                    <Input placeholder="Choose a username" {...field} />
+                    <Input
+                      placeholder="Choose a username"
+                      disabled={isCreating}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -84,6 +91,7 @@ function CreateAccountForm({ setShowForm }: CreateAccountFormProps) {
                     <Input
                       type="tel"
                       placeholder="Enter your phone number"
+                      disabled={isCreating}
                       {...field}
                     />
                   </FormControl>
@@ -100,6 +108,7 @@ function CreateAccountForm({ setShowForm }: CreateAccountFormProps) {
                   <FormControl>
                     <Input
                       type="tel"
+                      disabled={isCreating}
                       placeholder="Enter emergency contact number"
                       {...field}
                     />
@@ -117,6 +126,7 @@ function CreateAccountForm({ setShowForm }: CreateAccountFormProps) {
                   <FormControl>
                     <Input
                       type="email"
+                      disabled={isCreating}
                       placeholder="Enter your email address"
                       {...field}
                     />
@@ -132,8 +142,70 @@ function CreateAccountForm({ setShowForm }: CreateAccountFormProps) {
                 <FormItem>
                   <FormLabel>Address</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter your address" {...field} />
+                    <Input
+                      placeholder="Enter your address"
+                      disabled={isCreating}
+                      {...field}
+                    />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input
+                    type="password"
+                      placeholder="Enter your password"
+                      disabled={isCreating}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="startDate"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Start Date</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          disabled={isCreating}
+                          className={`w-full pl-3 text-left font-normal ${
+                            !field.value ? "text-muted-foreground" : ""
+                          }`}
+                        >
+                          {field.value ? (
+                            format(field.value, "PPP")
+                          ) : (
+                            <span>Select a date</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={isCreating}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}
@@ -147,6 +219,7 @@ function CreateAccountForm({ setShowForm }: CreateAccountFormProps) {
                   <FormControl>
                     <Input
                       type="file"
+                      disabled={isCreating}
                       accept="image/*"
                       onChange={(e) => {
                         const file = e.target.files?.[0];
@@ -176,6 +249,7 @@ function CreateAccountForm({ setShowForm }: CreateAccountFormProps) {
                       <Button
                         type="button"
                         variant="ghost"
+                        disabled={isCreating}
                         className="absolute top-1 left-1 bg-black/70 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80"
                         onClick={removeImg}
                       >
@@ -183,43 +257,6 @@ function CreateAccountForm({ setShowForm }: CreateAccountFormProps) {
                       </Button>
                     </div>
                   )}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="startDate"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Start Date</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          className={`w-full pl-3 text-left font-normal ${
-                            !field.value ? "text-muted-foreground" : ""
-                          }`}
-                        >
-                          {field.value ? (
-                            format(field.value, "PPP")
-                          ) : (
-                            <span>Select a date</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}
