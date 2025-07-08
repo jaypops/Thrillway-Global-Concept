@@ -10,6 +10,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectTrigger,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import {
   Popover,
@@ -160,7 +167,7 @@ function CreateAccountForm({ setShowForm }: CreateAccountFormProps) {
                   <FormLabel>Password</FormLabel>
                   <FormControl>
                     <Input
-                    type="password"
+                      type="password"
                       placeholder="Enter your password"
                       disabled={isCreating}
                       {...field}
@@ -257,6 +264,38 @@ function CreateAccountForm({ setShowForm }: CreateAccountFormProps) {
                       </Button>
                     </div>
                   )}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="role"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Roles</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    disabled={!!field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger
+                        value={field.value}
+                        className="w-full cursor-pointer"
+                      >
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="admin">Admin</SelectItem>
+                      <SelectItem value="fieldAgent">Field Agent</SelectItem>
+                      <SelectItem value="customerAgent">
+                        Customer Agent
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

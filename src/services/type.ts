@@ -1,3 +1,4 @@
+//Property
 export type FeatureName =
   | "swimmingPool"
   | "garage"
@@ -27,6 +28,8 @@ export type Property = {
   documents?: string[];
 };
 
+//Account
+
 export type Account = {
   _id?: string;
   name: string;
@@ -36,13 +39,64 @@ export type Account = {
   email: string;
   address: string;
   password?: string;
-  images?: string;
+  images?: string[];
+  role: string;
   startDate: string;
 };
+
+//Login
 
 export interface LoginResponse {
   success: boolean;
   message: string;
   token: string;
   account: Account;
+}
+
+export interface User {
+  id: string;
+  role: "admin" | "fieldAgent" | "customerAgent";
+}
+
+//Dashboard
+
+export type PropertyType =
+  | "house"
+  | "land"
+  | "shop"
+  | "duplex"
+  | "apartment"
+  | "office-space"
+  | "warehouse"
+  | "industrial-property"
+  | "restaurant"
+  | "hotel"
+  | "parking-space"
+  | "farm";
+
+export interface PropertyStats {
+  type: PropertyType;
+  count: number;
+  revenue: number;
+  averagePrice: number;
+}
+
+export interface DashboardData {
+  totalProperties: number;
+  totalRevenue: number;
+  averagePrice: number;
+  propertiesSold: number;
+  propertyStats: PropertyStats[];
+  monthlyTrends: Array<{
+    month: string;
+    properties: number;
+    revenue: number;
+  }>;
+}
+
+export interface DashboardContextType {
+  data: DashboardData;
+  selectedTimeframe: "weekly" | "monthly" | "yearly";
+  setSelectedTimeframe: (timeframe: "weekly" | "monthly" | "yearly") => void;
+  isLoading: boolean;
 }

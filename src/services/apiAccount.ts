@@ -6,7 +6,6 @@ const API_BASE_URL = 'http://localhost:3000/api';
 
 type LoginData = Pick<Account, 'username' | 'password'>;
 
-// Add token to Axios headers
 const getAuthHeaders = () => {
   const token = localStorage.getItem('token');
   return token ? { Authorization: `Bearer ${token}` } : {};
@@ -25,39 +24,50 @@ export const fetchStaffDetails = async (): Promise<Account[]> => {
   }
 };
 
-export const createAccount = async (formData: FormData): Promise<Account> => {
+export async function createAccount(formData: FormData): Promise<Account> {
   try {
-    const image = formData.get('image') as File | null;
+    const token = localStorage.getItem("token");
+    if (!token) {
+      throw new Error("Please log in to create an account");
+    }
+
+    const image = formData.get("image") as File | null;
     let imageUrl: string | undefined;
 
-    if (image) {
+    if (image && image.size > 0) {
       imageUrl = await uploadFile(image);
     }
 
     const accountData: Account = {
-      name: formData.get('name') as string,
-      username: formData.get('username') as string,
-      telephone: formData.get('telephone') as string,
-      emergencyContact: formData.get('emergencyContact') as string,
-      email: formData.get('email') as string,
-      address: formData.get('address') as string,
-      password: formData.get('password') as string,
-      images: imageUrl,
-      startDate: formData.get('startDate') as string,
+      name: formData.get("name") as string,
+      username: formData.get("username") as string,
+      telephone: formData.get("telephone") as string,
+      emergencyContact: formData.get("emergencyContact") as string,
+      email: formData.get("email") as string,
+      address: formData.get("address") as string,
+      password: formData.get("password") as string,
+      images: imageUrl ? [imageUrl] : [],
+      role: (formData.get("role") as "admin" | "staff") || "staff",
+      startDate: formData.get("startDate") as string,
     };
 
     const response = await axios.post<Account>(`${API_BASE_URL}/account`, accountData, {
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
+        ...getAuthHeaders(), 
       },
     });
 
     return response.data;
   } catch (error) {
-    console.error('Account creation failed:', error);
-    throw error;
+    if (axios.isAxiosError(error)) {
+      const errorMessage = error.response?.data?.message || "Failed to create account";
+      throw new Error(errorMessage);
+    }
+    console.error("Account creation failed:", error);
+    throw new Error("An unexpected error occurred");
   }
-};
+}
 
 export const deleteAccount = async ({ id }: { id: string }): Promise<Account> => {
   const res = await axios.delete(`${API_BASE_URL}/account/${id}`, {
@@ -79,7 +89,6 @@ export const loginAccount = async (formData: FormData): Promise<Account> => {
       },
     });
 
-    // Store token
     localStorage.setItem('token', response.data.token);
     return response.data.account;
   } catch (error) {

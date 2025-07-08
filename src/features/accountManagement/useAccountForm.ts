@@ -41,6 +41,7 @@ export const useAccountForm = ({
       address: "",
       password: "",
       image: undefined,
+      role: "",
       ...parsedInitialValues,
     },
   });

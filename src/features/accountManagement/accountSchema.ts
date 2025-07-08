@@ -10,4 +10,5 @@ export const formSchema = z.object({
   password: z.string().min(3, "Password is required"),
   startDate: z.date().optional(),
   image: z.instanceof(File).optional(),
+  role: z.string().min(1, "Role is required"),
 });
