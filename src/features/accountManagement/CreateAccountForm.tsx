@@ -1,5 +1,5 @@
 import { CalendarIcon, Loader2, X } from "lucide-react";
-import { format } from "date-fns";
+import { format, set } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -24,12 +24,23 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useAccountForm } from "./useAccountForm";
+import { useInviteLink } from "@/context/InviteLinkContext";
+import { useSearchParams } from "react-router-dom";
+import { useEffect } from "react";
 
 interface CreateAccountFormProps {
   setShowForm: React.Dispatch<React.SetStateAction<boolean>>;
+  setSelectedRole?: React.Dispatch<
+    React.SetStateAction<"admin" | "fieldAgent" | "customerAgent" | null>
+  >;
+  isInvitationFlow?: boolean;
 }
 
-function CreateAccountForm({ setShowForm }: CreateAccountFormProps) {
+function CreateAccountForm({
+  setShowForm,
+  setSelectedRole,
+  isInvitationFlow = false,
+}: CreateAccountFormProps) {
   const {
     form,
     onSubmit,
@@ -40,8 +51,46 @@ function CreateAccountForm({ setShowForm }: CreateAccountFormProps) {
     removeImg,
   } = useAccountForm();
 
+  const { setRole: setInviteRole } = useInviteLink();
+  const [searchParams] = useSearchParams();
+
+useEffect(() => {
+  if (isInvitationFlow) {
+    const role = searchParams.get("role") as
+      | "admin"
+      | "fieldAgent"
+      | "customerAgent";
+    if (role) {
+      form.setValue("role", role);
+      if (setSelectedRole) {
+        setSelectedRole(role);
+      }
+      if (setInviteRole) {
+        setInviteRole(role);
+      }
+    }
+  }
+}, [searchParams, form, setSelectedRole, isInvitationFlow, setInviteRole]);
+
+const handleRoleChange = (value: string) => {
+  const roleValue = value as "admin" | "fieldAgent" | "customerAgent";
+  form.setValue("role", roleValue);
+  if (setSelectedRole) {
+    setSelectedRole(roleValue);
+  }
+  if (isInvitationFlow && setInviteRole) {
+    setInviteRole(roleValue);
+  }
+};
+
   const handleSubmit = async (data: any) => {
     try {
+      if (isInvitationFlow) {
+        const invitationToken = localStorage.getItem("invitationToken");
+        if (invitationToken) {
+          data.invitationToken = invitationToken;
+        }
+      }
       await onSubmit(data);
       setShowForm(false);
     } catch (error) {
@@ -276,7 +325,7 @@ function CreateAccountForm({ setShowForm }: CreateAccountFormProps) {
                 <FormItem>
                   <FormLabel>Roles</FormLabel>
                   <Select
-                    onValueChange={field.onChange}
+                    onValueChange={handleRoleChange}
                     defaultValue={field.value}
                     disabled={!!field.value}
                   >

@@ -13,6 +13,9 @@ import { DashboardProvider } from "./context/DashboardContext";
 import Login from "./pages/Login";
 import ProtectedRoutes from "./ui/ProtectedRoutes";
 import { ReactNode } from "react";
+import { InviteLinkProvider } from "./context/InviteLinkContext";
+import { useInviteModal } from "./hooks/useInviteModel";
+import InvitationRegistration from "./pages/InvitationRegistration";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -49,47 +52,57 @@ const FieldAgentRoute = ({ children }: { children: ReactNode }) => {
 };
 
 function App() {
+  const inviteModal = useInviteModal();
   return (
     <QueryClientProvider client={queryClient}>
       <ReactQueryDevtools initialIsOpen={false} />
-      <DashboardProvider>
-        <AuthProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route
-                element={
-                  <ProtectedRoutes>
-                    <AppLayout />
-                  </ProtectedRoutes>
-                }
-              >
-                <Route index element={<Navigate replace to="login" />} />
-                <Route path="dashboard" element={<Dashboard />} />
-                <Route path="addproperties" element={<AddProperties />} />
-                <Route path="properties" element={<Properties />} />
+      <InviteLinkProvider
+        isOpen={inviteModal.isOpen}
+        onOpenChange={inviteModal.onOpenChange}
+      >
+        <DashboardProvider>
+          <AuthProvider>
+            <BrowserRouter>
+              <Routes>
                 <Route
-                  path="accountmanagment"
                   element={
-                    <AdminRoute>
-                      <AccountManagment />
-                    </AdminRoute>
+                    <ProtectedRoutes>
+                      <AppLayout />
+                    </ProtectedRoutes>
                   }
+                >
+                  <Route index element={<Navigate replace to="login" />} />
+                  <Route path="dashboard" element={<Dashboard />} />
+                  <Route path="addproperties" element={<AddProperties />} />
+                  <Route path="properties" element={<Properties />} />
+                  <Route
+                    path="accountmanagment"
+                    element={
+                      <AdminRoute>
+                        <AccountManagment />
+                      </AdminRoute>
+                    }
+                  />
+                  <Route
+                    path="messages"
+                    element={
+                      <FieldAgentRoute>
+                        <Messages />
+                      </FieldAgentRoute>
+                    }
+                  />
+                  <Route path="settings" element={<Settings />} />
+                </Route>
+                <Route path="login" element={<Login />} />
+                 <Route 
+                  path="account-management" 
+                  element={<InvitationRegistration />} 
                 />
-                <Route
-                  path="messages"
-                  element={
-                    <FieldAgentRoute>
-                      <Messages />
-                    </FieldAgentRoute>
-                  }
-                />
-                <Route path="settings" element={<Settings />} />
-              </Route>
-              <Route path="login" element={<Login />} />
-            </Routes>
-          </BrowserRouter>
-        </AuthProvider>
-      </DashboardProvider>
+              </Routes>
+            </BrowserRouter>
+          </AuthProvider>
+        </DashboardProvider>
+      </InviteLinkProvider>
     </QueryClientProvider>
   );
 }

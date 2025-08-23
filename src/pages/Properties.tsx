@@ -179,7 +179,7 @@ function Properties() {
   const [viewProperty, setviewProperty] = React.useState<string | null>(null);
 
   const deleteAllPropertyMutation = useDeleteAllProperty();
-  const { isLoading, isError, data, error } = useProperty();
+  const { isPending, data , error } = useProperty();
 
   const table = useReactTable({
     data,
@@ -217,8 +217,8 @@ function Properties() {
     }
   };
 
-  if (isLoading) return <div className="p-4">Loading...</div>;
-  if (isError) {
+  if (isPending) return <div className="p-4">Loading...</div>;
+  if (error) {
     console.error("Error loading properties:", error);
     return <div className="p-4 text-red-500">Failed to load properties.</div>;
   }

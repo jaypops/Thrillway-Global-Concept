@@ -42,6 +42,7 @@ export type Account = {
   images?: string[];
   role: string;
   startDate: string;
+  invitationToken?: string;
 };
 
 //Login
