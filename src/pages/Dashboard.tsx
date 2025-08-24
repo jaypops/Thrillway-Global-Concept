@@ -1,6 +1,6 @@
 import { DashboardHeader } from "@/features/dashboard/DashboardHeader";
 import { PropertyTypeChart } from "@/features/dashboard/PropertyTypeChart";
-import { RevenueTrendsChart } from "@/features/dashboard/RevenueTrendsChart";
+// import { RevenueTrendsChart } from "@/features/dashboard/RevenueTrendsChart";
 import { StatsCards } from "@/features/dashboard/StatsCards";
 
 function Dashboard() {
@@ -10,9 +10,8 @@ function Dashboard() {
         <DashboardHeader />
         <StatsCards />
 
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="w-full max-w mx-auto">
           <PropertyTypeChart />
-          <RevenueTrendsChart />
         </div>
       </div>
     </div>

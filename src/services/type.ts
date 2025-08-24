@@ -82,22 +82,27 @@ export interface PropertyStats {
   averagePrice: number;
 }
 
-export interface DashboardData {
-  totalProperties: number;
-  totalRevenue: number;
-  averagePrice: number;
-  propertiesSold: number;
-  propertyStats: PropertyStats[];
-  monthlyTrends: Array<{
-    month: string;
-    properties: number;
-    revenue: number;
-  }>;
-}
-
 export interface DashboardContextType {
-  data: DashboardData;
+  data: DashboardData | null;
   selectedTimeframe: "weekly" | "monthly" | "yearly";
   setSelectedTimeframe: (timeframe: "weekly" | "monthly" | "yearly") => void;
   isLoading: boolean;
+  propertiesSold: number;
+  totalRevenue: number;
+  totalProperties: number;
+  propertiesPending?: number;
+}
+
+export interface DashboardData {
+  propertyStats: {
+    type: string;
+    count: number;
+    revenue: number;
+    averagePrice: number;
+  }[];
+  monthlyTrends: {
+    month: string;
+    properties: number;
+    revenue: number;
+  }[];
 }

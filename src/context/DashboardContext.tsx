@@ -1,60 +1,40 @@
+import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 import { DashboardContextType, DashboardData } from "@/services/type";
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { useProperty } from "@/features/useProperty";
 
-const DashboardContext = createContext<DashboardContextType | undefined>(
-  undefined
-);
-
-// Mock data
-const mockData: DashboardData = {
-  totalProperties: 1247,
-  totalRevenue: 45600000,
-  averagePrice: 850000,
-  propertiesSold: 89,
-  propertyStats: [
-    { type: "house", count: 245, revenue: 15600000, averagePrice: 950000 },
-    { type: "apartment", count: 189, revenue: 8900000, averagePrice: 650000 },
-    { type: "land", count: 156, revenue: 7800000, averagePrice: 450000 },
-    { type: "duplex", count: 98, revenue: 6200000, averagePrice: 1200000 },
-    { type: "office-space", count: 87, revenue: 4300000, averagePrice: 780000 },
-    { type: "shop", count: 76, revenue: 2100000, averagePrice: 320000 },
-    { type: "warehouse", count: 54, revenue: 1800000, averagePrice: 890000 },
-    {
-      type: "industrial-property",
-      count: 43,
-      revenue: 1600000,
-      averagePrice: 1100000,
-    },
-    { type: "restaurant", count: 32, revenue: 980000, averagePrice: 420000 },
-    { type: "hotel", count: 21, revenue: 1200000, averagePrice: 2100000 },
-    { type: "parking-space", count: 67, revenue: 340000, averagePrice: 85000 },
-    { type: "farm", count: 29, revenue: 1450000, averagePrice: 680000 },
-  ],
-  monthlyTrends: [
-    { month: "Jul", properties: 89, revenue: 3200000 },
-    { month: "Aug", properties: 95, revenue: 3800000 },
-    { month: "Sep", properties: 102, revenue: 4100000 },
-    { month: "Oct", properties: 87, revenue: 3600000 },
-    { month: "Nov", properties: 112, revenue: 4500000 },
-    { month: "Dec", properties: 98, revenue: 3900000 },
-    { month: "Jan", properties: 125, revenue: 5200000 },
-  ],
-};
+const DashboardContext = createContext<DashboardContextType | undefined>(undefined);
 
 export function DashboardProvider({ children }: { children: ReactNode }) {
-  const [data] = useState<DashboardData>(mockData);
-  const [selectedTimeframe, setSelectedTimeframe] = useState<
-    "weekly" | "monthly" | "yearly"
-  >("monthly");
-  const [isLoading] = useState(false);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [selectedTimeframe, setSelectedTimeframe] = useState<"weekly" | "monthly" | "yearly">("monthly");
+  const [isLoading, setIsLoading] = useState(true);
+  
+  const { data: propertyData, isPending: propertyLoading } = useProperty();
+
+  useEffect(() => {
+    if (propertyData && !propertyLoading) {
+      const processedData = processPropertiesData(propertyData);
+      setDashboardData(processedData);
+      setIsLoading(false);
+    }
+  }, [propertyData, propertyLoading]);
+
+  const totalProperties = propertyData?.length ?? 0;
+  const totalRevenue = propertyData?.reduce((sum, item) => sum + Number(item.price || 0), 0) ?? 0;
+  const propertiesSold = propertyData?.filter((item) => item.status === "sold").length ?? 0;
+  const propertiesPending = propertyData?.filter((item) => item.status === "pending").length ?? 0;
 
   return (
     <DashboardContext.Provider
       value={{
-        data,
+        data: dashboardData,
         selectedTimeframe,
         setSelectedTimeframe,
-        isLoading,
+        isLoading: isLoading || propertyLoading,
+        propertiesSold,
+        totalRevenue,
+        totalProperties,
+        propertiesPending
       }}
     >
       {children}
@@ -68,4 +48,52 @@ export function useDashboard() {
     throw new Error("useDashboard must be used within a DashboardProvider");
   }
   return context;
+}
+
+function processPropertiesData(properties: any[]): DashboardData {
+  const propertyStatsMap = new Map<string, {count:number, totalrevenue: number}>();
+  const monthlyData = new Map<string, {properties: number, revenue:number}>();
+  const monthName = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+
+ properties.forEach(property => {
+    const date = new Date(property.createdAt?.$date?.$numberLong ? 
+      parseInt(property.createdAt.$date.$numberLong) : property.createdAt);
+    // const year = date.getFullYear();
+    const month = date.getMonth();
+    const monthKey = `${monthName[month]}`;
+    
+    if (!propertyStatsMap.has(property.propertyType)) {
+      propertyStatsMap.set(property.propertyType, { count: 0, totalrevenue: 0 });
+    }
+    const typeStats = propertyStatsMap.get(property.propertyType)!;
+    typeStats.count += 1;
+    typeStats.totalrevenue += Number(property.price || 0);
+    
+    if (!monthlyData.has(monthKey)) {
+      monthlyData.set(monthKey, { properties: 0, revenue: 0 });
+    }
+    const monthStats = monthlyData.get(monthKey)!;
+    monthStats.properties += 1;
+    monthStats.revenue += Number(property.price || 0);
+  });
+
+  const propertyStats = Array.from(propertyStatsMap.entries()).map(([type, data]) => ({
+    type,
+    count: data.count,
+    revenue: data.totalrevenue,
+    averagePrice: Math.round(data.totalrevenue / data.count)
+  }));
+
+  const monthlyTrends = Array.from(monthlyData.entries())
+    .map(([month, data]) => ({
+      month,
+      properties: data.properties,
+      revenue: data.revenue
+    }))
+    .sort((a, b) => monthName.indexOf(a.month) - monthName.indexOf(b.month));
+
+  return {
+    propertyStats,
+    monthlyTrends
+  };
 }

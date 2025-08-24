@@ -16,6 +16,7 @@ import {
 import { BiMessageSquareDetail } from "react-icons/bi";
 import { NavLink } from "react-router-dom";
 import { IconType } from "react-icons";
+import { Logout } from "@/authentication/Logout";
 
 interface MenuItem {
   title: string;
@@ -67,6 +68,11 @@ export function AppSidebar() {
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <Logout />
+            </SidebarMenuButton>
+          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarContent>
     </Sidebar>

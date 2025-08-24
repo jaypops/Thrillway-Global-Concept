@@ -1,5 +1,5 @@
 import { CalendarIcon, Loader2, X } from "lucide-react";
-import { format, set } from "date-fns";
+import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
