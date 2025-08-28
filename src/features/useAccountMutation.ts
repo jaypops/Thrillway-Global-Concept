@@ -25,14 +25,12 @@ export function useCreateAccount() {
 
 export function useDeleteAccount() {
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
   return useMutation({
     mutationFn: ({ id }: { id: string }) => deleteAccount({ id }),
     onSuccess: () => {
       toast.success("Account deleted successfully");
 
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
-      navigate("/login", { replace: true });
     },
     onError: (error: Error) => {
       toast.error(error.message || "Failed to delete account");

@@ -29,6 +29,7 @@ import {
 import { useRef, useState } from "react";
 import { Property } from "@/services/type";
 import toast from "react-hot-toast";
+import Loader from "@/ui/Loader";
 
 interface ViewPropertyProps {
   propertyId: string;
@@ -88,15 +89,20 @@ function ViewProperty({ propertyId, onClose }: ViewPropertyProps) {
     }));
   };
 
-  if (isPending) return <div className="p-4">Loading property details...</div>;
+  if (isPending)
+    return (
+      <div className="p-4">
+        <Loader />
+      </div>
+    );
   if (error)
     return <div className="p-4 text-red-500">Error: {error.message}</div>;
   if (!property) return <div className="p-4">Property not found</div>;
   console.log("Property data:", property);
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center p-4 z-50 w-full h-screen bg-backdrop-color backdrop-blur-sm transition-all duration-500">
-      <div className="w-full max-w-6xl h-[100vh] bg-white overflow-y-scroll rounded-lg shadow-lg p-12 transition-all duration-500">
+    <div className="fixed inset-0 flex items-center justify-center p-4 z-50 w-full h-screen bg-black/40 backdrop-blur-none transition-all duration-500">
+      <div className="p-6 sm:p-12 w-full max-w-6xl h-[100vh] bg-white overflow-y-scroll rounded-lg shadow-lg transition-all duration-500">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">View Property</h2>
           <button
@@ -154,14 +160,17 @@ function ViewProperty({ propertyId, onClose }: ViewPropertyProps) {
             <CarouselNext />
           </Carousel>
           <div className="pb-6">
-            <p className="tracking-normal text-sm/6 pt-6">
+            <p className="tracking-normal text-sm/6 pt-6 ">
               {property.description}
             </p>
           </div>
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap gap-4 text-sm">
             {PropertyList.filter((item) => {
               const value = getNestedProperty(property, item.key);
-              return !item.key.startsWith("features.") || value === true;
+              return (
+                !item.key.startsWith("features.") ||
+                (typeof value === "boolean" && value === true)
+              );
             }).map((item) => {
               const value = getNestedProperty(property, item.key);
               return (
@@ -191,18 +200,21 @@ function ViewProperty({ propertyId, onClose }: ViewPropertyProps) {
             {property.documents && property.documents.length > 0 ? (
               property.documents.map((document) => (
                 <div
-                  className="p-2 px-4 border border-transparent rounded-lg flex items-center bg-gray-300 justify-between max-w-[60rem]"
+                  className="p-2 px-4 border border-transparent rounded-lg flex items-center bg-gray-300 max-w-[50rem] gap-6 text-sm"
                   key={document}
                 >
-                  {document}
-                  <FaRegClipboard
-                    className="cursor-pointer text-gray-600 hover:text-gray-800"
-                    onClick={() => {
-                      navigator.clipboard.writeText(document);
-                      toast.success("Document URL copied to clipboard");
-                    }}
-                    aria-label="Copy document URL"
-                  />
+                  <span>
+                    {" "}
+                    <FaRegClipboard
+                      className="cursor-pointer text-gray-600 hover:text-gray-800"
+                      onClick={() => {
+                        navigator.clipboard.writeText(document);
+                        toast.success("Document URL copied to clipboard");
+                      }}
+                      aria-label="Copy document URL"
+                    />
+                  </span>
+                  <span className="truncate">{document}</span>
                 </div>
               ))
             ) : (

@@ -25,6 +25,7 @@ import { PropertyFeatures } from "@/features/addProperties/PropertyFeatures";
 import { usePropertyForm } from "@/features/addProperties/usePropertyForm";
 import { Switch } from "@/components/ui/switch";
 import { Property } from "@/services/type";
+import Loader2 from "@/ui/Loader2";
 
 interface CreatePropertyFormProps {
   isEditMode?: boolean;
@@ -90,6 +91,7 @@ function CreatePropertyForm({
                     <FormControl>
                       <Input
                         disabled={isLoading}
+                        className="text-xs xs:text-lg"
                         placeholder="Luxury 3-Bedroom Apartment"
                         {...field}
                       />
@@ -110,6 +112,7 @@ function CreatePropertyForm({
                         <Input
                           type="number"
                           disabled={isLoading}
+                          className="text-xs xs:text-lg"
                           placeholder="250000"
                           {...field}
                         />
@@ -131,10 +134,8 @@ function CreatePropertyForm({
                         disabled={isLoading}
                       >
                         <FormControl>
-                          <SelectTrigger className="w-full cursor-pointer">
-                            <SelectValue
-                              placeholder="Select"
-                            />
+                          <SelectTrigger className="w-full cursor-pointer text-xs lg:text-base">
+                            <SelectValue placeholder="Select" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -161,6 +162,7 @@ function CreatePropertyForm({
                     <FormControl>
                       <Input
                         placeholder="Lagos..."
+                        className="text-xs xs:text-lg"
                         disabled={isLoading}
                         {...field}
                       />
@@ -182,7 +184,7 @@ function CreatePropertyForm({
                         disabled={isLoading}
                       >
                         <FormControl>
-                          <SelectTrigger className="w-full cursor-pointer">
+                          <SelectTrigger className="w-full cursor-pointer text-xs lg:text-base">
                             <SelectValue placeholder="Select" />
                           </SelectTrigger>
                         </FormControl>
@@ -224,7 +226,7 @@ function CreatePropertyForm({
                         disabled={isLoading}
                       >
                         <FormControl>
-                          <SelectTrigger className="w-full cursor-pointer">
+                          <SelectTrigger className="w-full cursor-pointer text-xs lg:text-base">
                             <SelectValue placeholder="Select" />
                           </SelectTrigger>
                         </FormControl>
@@ -257,7 +259,7 @@ function CreatePropertyForm({
                           disabled={isLoading}
                         >
                           <FormControl>
-                            <SelectTrigger className="w-full cursor-pointer">
+                            <SelectTrigger className="w-full cursor-pointer text-xs xs:text-lg">
                               <SelectValue placeholder="Select" />
                             </SelectTrigger>
                           </FormControl>
@@ -286,7 +288,7 @@ function CreatePropertyForm({
                           disabled={isLoading}
                         >
                           <FormControl>
-                            <SelectTrigger className="w-full cursor-pointer">
+                            <SelectTrigger className="w-full cursor-pointer text-xs lg:text-base">
                               <SelectValue placeholder="Select" />
                             </SelectTrigger>
                           </FormControl>
@@ -315,6 +317,7 @@ function CreatePropertyForm({
                       <Input
                         type="number"
                         placeholder="120"
+                        className="text-xs xs:text-lg"
                         disabled={isLoading}
                         {...field}
                       />
@@ -335,7 +338,7 @@ function CreatePropertyForm({
                     <FormControl>
                       <Textarea
                         placeholder="Describe the property..."
-                        className="min-h-[150px]"
+                        className="min-h-[150px] text-xs xs:text-lg"
                         {...field}
                         disabled={isLoading}
                       />
@@ -424,11 +427,16 @@ function CreatePropertyForm({
             disabled={isLoading}
           >
             <Plus className="mr-2 h-4 w-4" />
-            {isLoading
-              ? "Saving..."
-              : isEditMode
-              ? "Update Property"
-              : "Upload Property"}
+            {isLoading ? (
+              <>
+                <Loader2 />
+                Submitting...
+              </>
+            ) : isEditMode ? (
+              "Update Property"
+            ) : (
+              "Upload Property"
+            )}
           </Button>
         </form>
       </Form>

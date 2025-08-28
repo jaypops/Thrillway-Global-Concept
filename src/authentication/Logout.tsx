@@ -1,11 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { CiLogout } from "react-icons/ci";
+import { useLogout } from "./useLogout";
 
 export function Logout() {
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    window.location.href = "/login";
-  };
+  const handleLogout = useLogout();
 
   return (
     <Button

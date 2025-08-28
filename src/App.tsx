@@ -6,7 +6,6 @@ import AppLayout from "./ui/AppLayout";
 import Dashboard from "./pages/Dashboard";
 import Properties from "./pages/Properties";
 import Messages from "./pages/Messages";
-import Settings from "./pages/Settings";
 import AddProperties from "./pages/AddProperties";
 import AccountManagment from "./pages/AccountManagment";
 import { DashboardProvider } from "./context/DashboardContext";
@@ -91,7 +90,6 @@ function App() {
                       </FieldAgentRoute>
                     }
                   />
-                  <Route path="settings" element={<Settings />} />
                 </Route>
                 <Route path="login" element={<Login />} />
                  <Route 

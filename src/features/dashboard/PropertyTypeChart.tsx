@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/chart";
 import { useDashboard } from "@/context/DashboardContext";
 import { useProperty } from "../useProperty";
+import Loader from "@/ui/Loader";
 
 const chartConfig = {
   count: {
@@ -25,15 +26,24 @@ const chartConfig = {
 export function PropertyTypeChart() {
   const { data } = useDashboard();
   const { isPending, error, data: propertyData } = useProperty();
-  const chartData = data.propertyStats
-    .map((stat) => ({
-      type:
-        propertyData?.find((p) => p.propertyType === stat.type)?.propertyType ||
-        stat.type,
-      count: stat.count,
-    }))
-    .sort((a, b) => b.count - a.count);
-  if (isPending) return <div className="p-4">Loading...</div>;
+  
+  const chartData =
+    data?.propertyStats
+      ?.map((stat) => ({
+        type:
+          propertyData?.find((p) => p.propertyType === stat.type)
+            ?.propertyType || stat.type,
+        count: stat.count,
+      }))
+      .sort((a, b) => b.count - a.count) || [];
+
+  if (isPending)
+    return (
+      <div className="p-4">
+        <Loader />
+      </div>
+    );
+
   if (error) {
     console.error("Error loading properties:", error);
     return <div className="p-4 text-red-500">Failed to load properties.</div>;
@@ -55,12 +65,12 @@ export function PropertyTypeChart() {
               dataKey="type"
               angle={-45}
               textAnchor="end"
-              height={80}
+              height={100}
               fontSize={12}
             />
             <YAxis />
             <ChartTooltip content={<ChartTooltipContent />} />
-            <Bar dataKey="count" fill="var(--color-count)" radius={4} />
+            <Bar dataKey="count" fill="#3B82F6" radius={2} />
           </BarChart>
         </ChartContainer>
       </CardContent>

@@ -8,17 +8,18 @@ import {
 } from "@/components/ui/select";
 import { useDashboard } from "@/context/DashboardContext";
 import { CalendarDays, Plus } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export function DashboardHeader() {
   const { selectedTimeframe, setSelectedTimeframe } = useDashboard();
-
+  const navigate = useNavigate();
   return (
-    <div className="flex items-center justify-between pb-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">
+    <div className=" flex-col sm:flex-row flex items-center justify-between pb-6">
+      <div className="pb-4">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
           Thrillway Global Concept Dashboard
         </h1>
-        <p className="text-muted-foreground">
+        <p className="text-sm sm:text-muted-foreground">
           Overview of your property portfolio and market performance
         </p>
       </div>
@@ -39,7 +40,7 @@ export function DashboardHeader() {
             <SelectItem value="yearly">Yearly</SelectItem>
           </SelectContent>
         </Select>
-        <Button size="lg" className="w-full md:w-auto cursor-pointer">
+        <Button size="lg" className="text-sm sm:w-full md:w-auto cursor-pointer text-primary-foreground" onClick={() => navigate("/addproperties")}>
           <Plus className="mr-2 h-4 w-4" />
           Add Property
         </Button>

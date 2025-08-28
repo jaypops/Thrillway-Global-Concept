@@ -29,7 +29,7 @@ function AccountManagement() {
             disabled={showForm}
             variant="outline"
             size="lg"
-            className="w-full md:w-auto cursor-pointer"
+            className="w-full md:w-auto cursor-pointer text-xs"
           >
             <Plus className="mr-2 h-4 w-4" />
             Add staff
@@ -41,7 +41,7 @@ function AccountManagement() {
             disabled={!selectedRole} 
             variant="default"
             size="lg"
-            className="w-full md:w-auto cursor-pointer bg-primary hover:bg-primary/90 text-primary-foreground"
+            className="w-full md:w-auto cursor-pointer bg-primary hover:bg-primary/90 text-primary-foreground text-xs" 
           >
             <UserPlus className="mr-2 h-4 w-4" />
             Invite Staff

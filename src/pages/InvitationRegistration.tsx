@@ -4,8 +4,8 @@ import { validateInvitationToken } from "@/services/apiAccount";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2 } from "lucide-react";
 import CreateAccountForm from "@/features/accountManagement/CreateAccountForm";
+import Loader from "@/ui/Loader";
 
 export default function InvitationRegistration() {
   const [searchParams] = useSearchParams();
@@ -48,7 +48,7 @@ export default function InvitationRegistration() {
         <Card className="w-[400px]">
           <CardContent className="pt-6">
             <div className="flex items-center justify-center">
-              <Loader2 className="h-8 w-8 animate-spin" />
+              <Loader />
               <span className="ml-2">Validating invitation...</span>
             </div>
           </CardContent>

@@ -27,6 +27,7 @@ import { useAccountForm } from "./useAccountForm";
 import { useInviteLink } from "@/context/InviteLinkContext";
 import { useSearchParams } from "react-router-dom";
 import { useEffect } from "react";
+import Loader from "@/ui/Loader";
 
 interface CreateAccountFormProps {
   setShowForm: React.Dispatch<React.SetStateAction<boolean>>;
@@ -54,34 +55,34 @@ function CreateAccountForm({
   const { setRole: setInviteRole } = useInviteLink();
   const [searchParams] = useSearchParams();
 
-useEffect(() => {
-  if (isInvitationFlow) {
-    const role = searchParams.get("role") as
-      | "admin"
-      | "fieldAgent"
-      | "customerAgent";
-    if (role) {
-      form.setValue("role", role);
-      if (setSelectedRole) {
-        setSelectedRole(role);
-      }
-      if (setInviteRole) {
-        setInviteRole(role);
+  useEffect(() => {
+    if (isInvitationFlow) {
+      const role = searchParams.get("role") as
+        | "admin"
+        | "fieldAgent"
+        | "customerAgent";
+      if (role) {
+        form.setValue("role", role);
+        if (setSelectedRole) {
+          setSelectedRole(role);
+        }
+        if (setInviteRole) {
+          setInviteRole(role);
+        }
       }
     }
-  }
-}, [searchParams, form, setSelectedRole, isInvitationFlow, setInviteRole]);
+  }, [searchParams, form, setSelectedRole, isInvitationFlow, setInviteRole]);
 
-const handleRoleChange = (value: string) => {
-  const roleValue = value as "admin" | "fieldAgent" | "customerAgent";
-  form.setValue("role", roleValue);
-  if (setSelectedRole) {
-    setSelectedRole(roleValue);
-  }
-  if (isInvitationFlow && setInviteRole) {
-    setInviteRole(roleValue);
-  }
-};
+  const handleRoleChange = (value: string) => {
+    const roleValue = value as "admin" | "fieldAgent" | "customerAgent";
+    form.setValue("role", roleValue);
+    if (setSelectedRole) {
+      setSelectedRole(roleValue);
+    }
+    if (isInvitationFlow && setInviteRole) {
+      setInviteRole(roleValue);
+    }
+  };
 
   const handleSubmit = async (data: any) => {
     try {
@@ -99,7 +100,7 @@ const handleRoleChange = (value: string) => {
   };
 
   return (
-    <div className="px-14 pb-8">
+    <div className="px-7 sm:px-14 pb-8">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -112,6 +113,7 @@ const handleRoleChange = (value: string) => {
                   <FormControl>
                     <Input
                       placeholder="Enter your full name"
+                      className="text-xs xs:text-lg"
                       disabled={isCreating}
                       {...field}
                     />
@@ -129,6 +131,7 @@ const handleRoleChange = (value: string) => {
                   <FormControl>
                     <Input
                       placeholder="Choose a username"
+                      className="text-xs xs:text-lg"
                       disabled={isCreating}
                       {...field}
                     />
@@ -147,6 +150,7 @@ const handleRoleChange = (value: string) => {
                     <Input
                       type="tel"
                       placeholder="Enter your phone number"
+                      className="text-xs xs:text-lg"
                       disabled={isCreating}
                       {...field}
                     />
@@ -166,6 +170,7 @@ const handleRoleChange = (value: string) => {
                       type="tel"
                       disabled={isCreating}
                       placeholder="Enter emergency contact number"
+                      className="text-xs xs:text-lg"
                       {...field}
                     />
                   </FormControl>
@@ -184,6 +189,7 @@ const handleRoleChange = (value: string) => {
                       type="email"
                       disabled={isCreating}
                       placeholder="Enter your email address"
+                      className="text-xs xs:text-lg"
                       {...field}
                     />
                   </FormControl>
@@ -200,6 +206,7 @@ const handleRoleChange = (value: string) => {
                   <FormControl>
                     <Input
                       placeholder="Enter your address"
+                      className="text-xs xs:text-lg"
                       disabled={isCreating}
                       {...field}
                     />
@@ -218,6 +225,7 @@ const handleRoleChange = (value: string) => {
                     <Input
                       type="password"
                       placeholder="Enter your password"
+                      className="text-xs xs:text-lg"
                       disabled={isCreating}
                       {...field}
                     />
@@ -239,7 +247,7 @@ const handleRoleChange = (value: string) => {
                         <Button
                           variant="outline"
                           disabled={isCreating}
-                          className={`w-full pl-3 text-left font-normal ${
+                          className={`w-full pl-3 text-left font-normal text-xs xs:text-lg ${
                             !field.value ? "text-muted-foreground" : ""
                           }`}
                         >
@@ -276,6 +284,7 @@ const handleRoleChange = (value: string) => {
                     <Input
                       type="file"
                       disabled={isCreating}
+                      className="text-xs xs:text-lg"
                       accept="image/*"
                       onChange={(e) => {
                         const file = e.target.files?.[0];
@@ -357,7 +366,7 @@ const handleRoleChange = (value: string) => {
           >
             {isSubmitting || isCreating ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader />
                 Submitting...
               </>
             ) : (

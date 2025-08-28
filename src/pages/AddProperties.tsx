@@ -10,8 +10,8 @@ export default function AddProperties() {
           Fill in the details to list a new property
         </CardDescription>
       </CardHeader>
-      <div className="p-14">
-        <CreatePropertyForm />
+      <div className="p-6 sm:p-14">
+        <CreatePropertyForm id="" />
       </div>
     </div>
   );

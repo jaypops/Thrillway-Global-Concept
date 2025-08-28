@@ -40,18 +40,18 @@ function DeleteProperty({ _id, ids, onClose }: DeletePropertyProps) {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center p-4 z-50 w-full h-screen bg-backdrop-color backdrop-blur-sm transition-all duration-500">
-      <div className="w-full max-w-[35rem] h-[25vh] bg-white rounded-lg shadow-lg p-6 transition-all duration-500">
-        <div className="space-y-2">
+    <div className="fixed inset-0 flex items-center justify-center p-4 z-50 w-full h-screen bg-black/40 backdrop-blur-none transition-all duration-500">
+      <div className="w-full max-w-[35rem] h-[20vh] bg-white rounded-lg shadow-lg p-6 transition-all duration-500">
+        <div className="space-y-2 flex flex-col justify-between h-full">
           <p className="font-semibold">Are you absolutely sure?</p>
-          <h3 className="font-medium pl-2">
+          <h3 className="text-[13px] sm:pl-2">
             This action cannot be undone. This will permanently delete{" "}
             {isBulkDeletion ? `${ids!.length} properties` : "this property"}{" "}
             from the server.
           </h3>
-          <div className="flex gap-4 flex-row-reverse space-y-4">
+          <div className="flex gap-4 flex-row-reverse space-y-4 ">
             <Button
-              className="cursor-pointer"
+              className="cursor-pointer text-[13px]" 
               variant="destructive"
               disabled={isPending}
               onClick={handleDelete}
@@ -61,7 +61,7 @@ function DeleteProperty({ _id, ids, onClose }: DeletePropertyProps) {
             <Button
               variant="outline"
               onClick={onClose}
-              className="cursor-pointer"
+              className="cursor-pointer text-[13px]"
             >
               Cancel
             </Button>

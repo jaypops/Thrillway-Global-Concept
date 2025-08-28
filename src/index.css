@@ -123,3 +123,9 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* @media screen and (max-width: 394px) {
+  body {
+    @apply text-sm;
+  } 
+} */

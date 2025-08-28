@@ -34,13 +34,11 @@ import {
 import EditProperty from "@/features/properties/EditProperty";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { Property } from "@/services/type";
-import {
-  normalizeProperty,
-  useProperty,
-} from "@/features/useProperty";
+import { normalizeProperty, useProperty } from "@/features/useProperty";
 import { useDeleteAllProperty } from "@/features/usePropertyMutation";
 import ViewProperty from "@/features/properties/ViewProperty";
 import DeleteProperty from "@/features/properties/DeleteProperty";
+import Loader from "@/ui/Loader";
 
 export const getColumns = (
   onEdit: (property: Property) => void,
@@ -179,7 +177,7 @@ function Properties() {
   const [viewProperty, setviewProperty] = React.useState<string | null>(null);
 
   const deleteAllPropertyMutation = useDeleteAllProperty();
-  const { isPending, data , error } = useProperty();
+  const { isPending, data, error } = useProperty();
 
   const table = useReactTable({
     data,
@@ -217,7 +215,12 @@ function Properties() {
     }
   };
 
-  if (isPending) return <div className="p-4">Loading...</div>;
+  if (isPending)
+    return (
+      <div className="p-4">
+        <Loader />
+      </div>
+    );
   if (error) {
     console.error("Error loading properties:", error);
     return <div className="p-4 text-red-500">Failed to load properties.</div>;
@@ -246,7 +249,7 @@ function Properties() {
           onChange={(event) =>
             table.getColumn("address")?.setFilterValue(event.target.value)
           }
-          className="max-w-sm"
+          className="sm:max-w-sm max-w-[210px] text-sm"
         />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -271,7 +274,7 @@ function Properties() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <div className="rounded-md border">
+      <div className="rounded-md border ">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -297,7 +300,7 @@ function Properties() {
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()

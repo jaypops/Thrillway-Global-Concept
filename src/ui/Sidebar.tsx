@@ -10,7 +10,6 @@ import {
   MdOutlineSpaceDashboard,
   MdAddBox,
   MdHouse,
-  MdSettings,
   MdAccountCircle,
 } from "react-icons/md";
 import { BiMessageSquareDetail } from "react-icons/bi";
@@ -43,35 +42,43 @@ const items: MenuItem[] = [
     title: "Messages",
     icon: BiMessageSquareDetail,
   },
-  {
-    title: "Settings",
-    icon: MdSettings,
-  },
 ];
 
 export function AppSidebar() {
   return (
     <Sidebar>
-      <SidebarContent>
-        <SidebarGroupLabel>Application</SidebarGroupLabel>
+      <SidebarContent className="w-64 bg-blue-800 text-white flex flex-col">
+        <div className="p-4 border-b border-blue-700">
+          <SidebarGroupLabel>LOGO</SidebarGroupLabel>
+        </div>
         <SidebarMenu>
           {items.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild>
-                <NavLink
-                  key={item.title}
-                  to={`/${item.title.toLowerCase().replace(/\s+/g, "")}`}
-                >
-                  <item.icon />
-                  <span>{item.title}</span>
-                </NavLink>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+            <nav className="flex-1 overflow-y-auto py-2">
+              <ul className="space-y-1 px-4">
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink
+                      key={item.title}
+                      to={`/${item.title.toLowerCase().replace(/\s+/g, "")}`}
+                    >
+                      <item.icon />
+                      <span className=" text-base font-medium ">
+                        {item.title}
+                      </span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </ul>
+            </nav>
           ))}
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <Logout />
-            </SidebarMenuButton>
+          <SidebarMenuItem className="relative">
+            <div className="flex-1">
+              <div className="absolute top-60 left-0 right-0 p-4 border-t border-blue-700">
+                <SidebarMenuButton asChild>
+                  <Logout />
+                </SidebarMenuButton>
+              </div>
+            </div>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarContent>

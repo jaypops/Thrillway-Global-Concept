@@ -7,12 +7,13 @@ import { FaRegTrashAlt } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import DeleteAccount from "./DeleteAccount";
+import Loader from "@/ui/Loader";
 
 function ProfileCard() {
   const { accounts, isPending, error } = useAccount();
   const [accountToDelete, setAccountToDelete] = useState<string | null>(null);
 
-  if (isPending) return <div className="p-4">Loading account details...</div>;
+  if (isPending) return <Loader />;
   if (error)
     return <div className="p-4 text-red-500">Error: {error.message}</div>;
   if (!accounts || accounts.length === 0)
@@ -26,23 +27,27 @@ function ProfileCard() {
     setAccountToDelete(null);
   };
   return (
-    <div className="space-y-4 flex flex-wrap">
+    <div className="space-y-4 flex items-center justify-center flex-wrap p-4">
       {accounts.map((account) => (
-        <Card key={account._id} className="w-full max-w-md mx-auto relative">
+        <Card key={account._id} className="w-full max-w-sm mx-auto relative">
           <CardHeader className="text-center pb-4">
             <div className="flex flex-col items-center space-y-4">
-              <Avatar className="w-24 h-24">
+              <Avatar className="w-20 h-19 sm:w-24 sm:h-24">
                 <AvatarImage
-                  src={account.images || "/placeholder.svg?height=96&width=96"}
+                  src={
+                    Array.isArray(account.images)
+                      ? account.images[0] || "/placeholder.svg?height=96&width=96"
+                      : account.images || "/placeholder.svg?height=96&width=96"
+                  }
                   alt={account.name}
                 />
-                <AvatarFallback className="text-lg font-semibold">
+                <AvatarFallback className="text-sm sm:text-lg font-semibold">
                   {account.name}
                 </AvatarFallback>
               </Avatar>
               <div className="space-y-1">
-                <h2 className="text-2xl font-bold">{account.name}</h2>
-                <Badge variant="secondary" className="text-sm">
+                <h2 className="text-lg sm:text-2xl font-bold">{account.name}</h2>
+                <Badge variant="secondary" className="text-xs sm:text-sm">
                   <User className="w-3 h-3 mr-1" />@{account.username}
                 </Badge>
               </div>
