@@ -9,7 +9,11 @@ export const fetchProperties = async (): Promise<Property[]> => {
 
 export const uploadFile = async (file: File): Promise<string> => {
   try {
-    const res = await fetch(`${API_BASE_URL}/s3Url`);
+    const res = await fetch(
+      `${API_BASE_URL}/s3Url?folder=images&mimeType=${encodeURIComponent(
+        file.type
+      )}`
+    );
     const { url } = await res.json();
 
     await fetch(url, {
@@ -113,7 +117,6 @@ export const editProperty = async ({
       ? JSON.parse(removedDocumentsJson)
       : [];
 
-
     const propertyData = {
       title: formData.get("title") as string,
       description: formData.get("description") as string,
@@ -140,7 +143,7 @@ export const editProperty = async ({
         ...documentUrls,
       ],
       removedImages,
-      removedDocuments, 
+      removedDocuments,
     };
     const response = await axios.patch(
       `${API_BASE_URL}/propertys/${id}`,

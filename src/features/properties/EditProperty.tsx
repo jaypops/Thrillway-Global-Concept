@@ -20,7 +20,7 @@ function EditProperty({ propertyId, onClose }: EditPropertyProps) {
   if (!property) return <div className="p-4">Property not found</div>;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center p-4 z-50 w-full h-screen bg-black/40 backdrop-blur-none transition-all duration-500">
+    <div className="fixed inset-0 flex items-center justify-center p-4 z-150 w-full h-screen bg-black/40 backdrop-blur-none transition-all duration-500 ">
       <div className="p-6 sm:p-12 w-full max-w-6xl h-[100vh] bg-white overflow-y-scroll rounded-lg shadow-lg transition-all duration-500">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Edit Property</h2>

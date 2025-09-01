@@ -379,7 +379,7 @@ function CreatePropertyForm({
                     files={documents}
                     onFileChange={handleDocumentUpload}
                     onRemove={removeDocument}
-                    icon={<FileText className="h-6 w-6 mb-2" />}
+                    icon={<FileText className="h-6 w-6 mb-2 " />}
                     error={fieldState.error?.message}
                   />
                 )}

@@ -2,7 +2,7 @@ import { useGenerateInviteLink } from "@/features/useAccountMutation";
 import { createContext, ReactNode, useContext, useState } from "react";
 
 interface InviteLinkContextType {
-  role: "admin" | "fieldAgent" | "customerAgent" ;
+  role: "admin" | "fieldAgent" | "customerAgent";
   setRole: (role: "admin" | "fieldAgent" | "customerAgent") => void;
   isGenerating: boolean;
   inviteLink: string;
@@ -14,13 +14,15 @@ interface InviteLinkContextType {
   setCopied: (copied: boolean) => void;
 }
 
-const InviteLinkContext = createContext<InviteLinkContextType | undefined>(undefined);
+const InviteLinkContext = createContext<InviteLinkContextType | undefined>(
+  undefined
+);
 
 interface InviteStaffModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   children: ReactNode;
-  initialRole?: "admin" | "fieldAgent" | "customerAgent" | null; 
+  initialRole?: "admin" | "fieldAgent" | "customerAgent" | null;
 }
 
 export const InviteLinkProvider = ({
@@ -29,10 +31,12 @@ export const InviteLinkProvider = ({
   isOpen,
   initialRole = "fieldAgent",
 }: InviteStaffModalProps) => {
-  const [role, setRole] = useState<"admin" | "fieldAgent" | "customerAgent">(initialRole || "fieldAgent");
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [inviteLink, setInviteLink] = useState("");
-  const [copied, setCopied] = useState(false);
+  const [role, setRole] = useState<"admin" | "fieldAgent" | "customerAgent">(
+    initialRole || "fieldAgent"
+  );
+  const [isGenerating, setIsGenerating] = useState<boolean>(false);
+  const [inviteLink, setInviteLink] = useState<string>("");
+  const [copied, setCopied] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const { mutateAsync: generateInviteLink } = useGenerateInviteLink();
 
@@ -44,7 +48,7 @@ export const InviteLinkProvider = ({
     onOpenChange(false);
   };
 
-   const handleGenerate = async () => {
+  const handleGenerate = async () => {
     setIsGenerating(true);
     setError(null);
     try {
@@ -61,7 +65,6 @@ export const InviteLinkProvider = ({
     }
   };
 
-
   return (
     <InviteLinkContext.Provider
       value={{
@@ -74,7 +77,7 @@ export const InviteLinkProvider = ({
         handleGenerate,
         handleClose,
         isOpen,
-        setCopied
+        setCopied,
       }}
     >
       {children}

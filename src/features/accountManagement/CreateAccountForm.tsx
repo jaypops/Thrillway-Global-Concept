@@ -1,4 +1,4 @@
-import { CalendarIcon, Loader2, X } from "lucide-react";
+import { CalendarIcon, X } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -27,7 +27,7 @@ import { useAccountForm } from "./useAccountForm";
 import { useInviteLink } from "@/context/InviteLinkContext";
 import { useSearchParams } from "react-router-dom";
 import { useEffect } from "react";
-import Loader from "@/ui/Loader";
+import Loader2 from "@/ui/Loader2";
 
 interface CreateAccountFormProps {
   setShowForm: React.Dispatch<React.SetStateAction<boolean>>;
@@ -52,7 +52,7 @@ function CreateAccountForm({
     removeImg,
   } = useAccountForm();
 
-  const { setRole: setInviteRole } = useInviteLink();
+  const { setRole: setInviteRole, } = useInviteLink();
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
@@ -366,7 +366,7 @@ function CreateAccountForm({
           >
             {isSubmitting || isCreating ? (
               <>
-                <Loader />
+                <Loader2 />
                 Submitting...
               </>
             ) : (

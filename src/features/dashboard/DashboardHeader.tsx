@@ -14,37 +14,43 @@ export function DashboardHeader() {
   const { selectedTimeframe, setSelectedTimeframe } = useDashboard();
   const navigate = useNavigate();
   return (
-    <div className=" flex-col sm:flex-row flex items-center justify-between pb-6">
+    <header className="bg-white border-b border-gray-200 fixed top-0 right-0 max-w-[69rem] w-full z-50 shadow-sm">
+      <div className="flex-col sm:flex-row flex items-center justify-between pb-4 pt-4 px-6">
       <div className="pb-4">
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-          Thrillway Global Concept Dashboard
+        Thrillway Global Concept Dashboard
         </h1>
         <p className="text-sm sm:text-muted-foreground">
-          Overview of your property portfolio and market performance
+        Overview of your property portfolio and market performance
         </p>
       </div>
       <div className="flex items-center space-x-2">
         <Select
-          value={selectedTimeframe}
-          onValueChange={(value: "weekly" | "monthly" | "yearly") =>
-            setSelectedTimeframe(value)
-          }
+        value={selectedTimeframe}
+        onValueChange={(value: "weekly" | "monthly" | "yearly") =>
+          setSelectedTimeframe(value)
+        }
         >
-          <SelectTrigger className="w-32">
-            <CalendarDays className="h-4 w-4 mr-2" />
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="weekly">Weekly</SelectItem>
-            <SelectItem value="monthly">Monthly</SelectItem>
-            <SelectItem value="yearly">Yearly</SelectItem>
-          </SelectContent>
+        <SelectTrigger className="w-32">
+          <CalendarDays className="h-4 w-4 mr-2" />
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="weekly">Weekly</SelectItem>
+          <SelectItem value="monthly">Monthly</SelectItem>
+          <SelectItem value="yearly">Yearly</SelectItem>
+        </SelectContent>
         </Select>
-        <Button size="lg" className="text-sm sm:w-full md:w-auto cursor-pointer text-primary-foreground" onClick={() => navigate("/addproperties")}>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Property
+        <Button
+        size="lg"
+        className="text-sm sm:w-full md:w-auto cursor-pointer text-primary-foreground"
+        onClick={() => navigate("/addproperties")}
+        >
+        <Plus className="mr-2 h-4 w-4" />
+        Add Property
         </Button>
       </div>
-    </div>
+      </div>
+    </header>
   );
 }

@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useDashboard } from "@/context/DashboardContext";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Home, CheckCircle, Clock, DollarSign } from "lucide-react";
+import { Home, CheckCircle, Clock, Wallet } from "lucide-react";
 
 export function StatsCards() {
   const {
@@ -40,7 +40,7 @@ export function StatsCards() {
     {
       title: "Total Revenue",
       value: `₦${totalRevenue.toLocaleString()}`,
-      icon: DollarSign,
+      icon: Wallet,
       description: "Total revenue generated",
     },
     {

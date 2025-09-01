@@ -46,7 +46,7 @@ const items: MenuItem[] = [
 
 export function AppSidebar() {
   return (
-    <Sidebar>
+    <Sidebar className="z-100">
       <SidebarContent className="w-64 bg-blue-800 text-white flex flex-col">
         <div className="p-4 border-b border-blue-700">
           <SidebarGroupLabel>LOGO</SidebarGroupLabel>

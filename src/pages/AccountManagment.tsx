@@ -9,7 +9,7 @@ import { useState } from "react";
 function AccountManagement() {
   const [showForm, setShowForm] = useState<boolean>(false);
   const [showInviteModal, setShowInviteModal] = useState<boolean>(false);
-  const [selectedRole, setSelectedRole] = useState<"admin" | "fieldAgent" | "customerAgent" | null>(null); // Add this state
+  const [selectedRole, setSelectedRole] = useState<"admin" | "fieldAgent" | "customerAgent" | null>(null); 
 
   function handleToggleForm() {
     setShowForm(!showForm);
@@ -41,7 +41,7 @@ function AccountManagement() {
             disabled={!selectedRole} 
             variant="default"
             size="lg"
-            className="w-full md:w-auto cursor-pointer bg-primary hover:bg-primary/90 text-primary-foreground text-xs" 
+            className="w-full md:w-auto cursor-pointer text-primary-foreground text-xs" 
           >
             <UserPlus className="mr-2 h-4 w-4" />
             Invite Staff

@@ -1,4 +1,9 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
@@ -15,6 +20,8 @@ import { ReactNode } from "react";
 import { InviteLinkProvider } from "./context/InviteLinkContext";
 import { useInviteModal } from "./hooks/useInviteModel";
 import InvitationRegistration from "./pages/InvitationRegistration";
+import { AnimatePresence } from "framer-motion";
+import PageTransition from "./ui/PageTransition";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -52,6 +59,7 @@ const FieldAgentRoute = ({ children }: { children: ReactNode }) => {
 
 function App() {
   const inviteModal = useInviteModal();
+  const location = window.location;
   return (
     <QueryClientProvider client={queryClient}>
       <ReactQueryDevtools initialIsOpen={false} />
@@ -62,41 +70,71 @@ function App() {
         <DashboardProvider>
           <AuthProvider>
             <BrowserRouter>
-              <Routes>
-                <Route
-                  element={
-                    <ProtectedRoutes>
-                      <AppLayout />
-                    </ProtectedRoutes>
-                  }
-                >
-                  <Route index element={<Navigate replace to="login" />} />
-                  <Route path="dashboard" element={<Dashboard />} />
-                  <Route path="addproperties" element={<AddProperties />} />
-                  <Route path="properties" element={<Properties />} />
+              <AnimatePresence mode="wait">
+                <Routes location={location} key={location.pathname}>
                   <Route
-                    path="accountmanagment"
                     element={
-                      <AdminRoute>
-                        <AccountManagment />
-                      </AdminRoute>
+                      <ProtectedRoutes>
+                        <AppLayout />
+                      </ProtectedRoutes>
                     }
-                  />
+                  >
+                    <Route
+                      index
+                      element={
+                        <PageTransition>
+                          <Navigate replace to="login" />
+                        </PageTransition>
+                      }
+                    />
+                    <Route
+                      path="dashboard"
+                      element={
+                        <PageTransition>
+                          <Dashboard />
+                        </PageTransition>
+                      }
+                    />
+                    <Route
+                      path="addproperties"
+                      element={
+                        <PageTransition>
+                          <AddProperties />
+                        </PageTransition>
+                      }
+                    />
+                    <Route
+                      path="properties"
+                      element={
+                        <PageTransition>
+                          <Properties />
+                        </PageTransition>
+                      }
+                    />
+                    <Route
+                      path="accountmanagment"
+                      element={
+                        <AdminRoute>
+                          <AccountManagment />
+                        </AdminRoute>
+                      }
+                    />
+                    <Route
+                      path="messages"
+                      element={
+                        <FieldAgentRoute>
+                          <Messages />
+                        </FieldAgentRoute>
+                      }
+                    />
+                  </Route>
+                  <Route path="login" element={<Login />} />
                   <Route
-                    path="messages"
-                    element={
-                      <FieldAgentRoute>
-                        <Messages />
-                      </FieldAgentRoute>
-                    }
+                    path="account-management"
+                    element={<InvitationRegistration />}
                   />
-                </Route>
-                <Route path="login" element={<Login />} />
-                 <Route 
-                  path="account-management" 
-                  element={<InvitationRegistration />} 
-                />
-              </Routes>
+                </Routes>
+              </AnimatePresence>
             </BrowserRouter>
           </AuthProvider>
         </DashboardProvider>

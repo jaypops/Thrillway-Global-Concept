@@ -6,10 +6,9 @@ import { StatsCards } from "@/features/dashboard/StatsCards";
 function Dashboard() {
   return (
     <div className="min-h-screen">
-      <div className="container mx-auto p-6 space-y-6">
-        <DashboardHeader />
+      <DashboardHeader />
+      <div className="container mx-auto p-6 space-y-6 pt-25">
         <StatsCards />
-
         <div className="w-full max-w mx-auto">
           <PropertyTypeChart />
         </div>

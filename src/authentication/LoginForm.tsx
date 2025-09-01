@@ -41,7 +41,7 @@ function LoginForm() {
 
 
   return (
-    <div className="bg-[#fff] w-full h-[100dvh] flex flex-col justify-center items-center">
+    <div className="bg-[#fff] w-full h-[100dvh] flex flex-col justify-center items-center px-4">
       <span className="py-4 flex flex-col justify-center items-center">
         <h1>LOGO</h1>
         <p className="font-semibold">Log in to your account</p>

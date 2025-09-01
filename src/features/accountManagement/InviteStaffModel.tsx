@@ -52,7 +52,7 @@ export default function InviteStaffModal() {
                 <Button
                   disabled={isGenerating}
                   onClick={handleGenerate}
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                  className="w-full text-primary-foreground"
                 >
                   {isGenerating ? (
                     <>

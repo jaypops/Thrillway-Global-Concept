@@ -53,7 +53,7 @@ export const FileUploader = ({
           className="hidden"
           onChange={handleChange}
         />
-        <label htmlFor={id} className="cursor-pointer flex flex-col items-center">
+        <label htmlFor={id} className="cursor-pointer flex flex-col items-center ">
           {icon}
           <span className="text-sm font-medium">
             Click to upload {label.toLowerCase()}
