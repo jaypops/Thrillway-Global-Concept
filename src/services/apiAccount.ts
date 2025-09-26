@@ -6,9 +6,18 @@ const API_BASE_URL = "http://localhost:3000/api";
 
 type LoginData = Pick<Account, "username" | "password">;
 
+let authToken: string | null = null;
+
+export const setAuthToken = (token: string | null) => {
+  authToken = token;
+};
+
+export const getAuthToken = (): string | null => {
+  return authToken;
+};
+
 const getAuthHeaders = () => {
-  const token = localStorage.getItem("token");
-  return token ? { Authorization: `Bearer ${token}` } : {};
+  return authToken ? { Authorization: `Bearer ${authToken}` } : {};
 };
 
 export const fetchStaffDetails = async (): Promise<Account[]> => {
@@ -90,7 +99,35 @@ export const deleteAccount = async ({
   return res.data;
 };
 
-export const loginAccount = async (formData: FormData): Promise<Account> => {
+export const storeToken = async (token: string): Promise<void> => {
+  try {
+    await axios.post(
+      `${API_BASE_URL}/account/token`,
+      { token },
+      {
+        headers: getAuthHeaders(),
+      }
+    );
+  } catch (error) {
+    console.error("Failed to store token:", error);
+    throw new Error("Failed to store authentication token");
+  }
+};
+
+export const getStoredToken = async (): Promise<string | null> => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/account/token`, {
+      headers: getAuthHeaders(),
+    });
+    return response.data.token;
+  } catch (error) {
+    console.error("Failed to retrieve token:", error);
+    return null;
+  }
+};
+
+// In your apiAccount.ts file, update the loginAccount function
+export const loginAccount = async (formData: FormData): Promise<{account: Account, token: string}> => {
   try {
     const loginData: LoginData = {
       username: formData.get("username") as string,
@@ -107,8 +144,15 @@ export const loginAccount = async (formData: FormData): Promise<Account> => {
       }
     );
 
-    localStorage.setItem("token", response.data.token);
-    return response.data.account;
+    // Set the token in memory and store in backend
+    setAuthToken(response.data.token);
+    await storeToken(response.data.token);
+    
+    // Return both account and token
+    return {
+      account: response.data.account,
+      token: response.data.token
+    };
   } catch (error) {
     if (axios.isAxiosError(error)) {
       const errorMessage = error.response?.data?.message || "Login failed";
@@ -118,18 +162,6 @@ export const loginAccount = async (formData: FormData): Promise<Account> => {
   }
 };
 
-export const verifyToken = async (): Promise<boolean> => {
-  try {
-    await axios.get(`${API_BASE_URL}/auth/account/verify`, {
-      headers: getAuthHeaders(),
-    });
-    return true;
-  } catch (error) {
-    console.error("Token verification failed:", error);
-    localStorage.removeItem("token");
-    return false;
-  }
-};
 
 export const generateInviteLink = async ({
   role,
@@ -188,6 +220,39 @@ export const validateInvitationToken = async (token: string) => {
   }
 };
 
-export const logout = () => {
-  localStorage.removeItem("token");
+export const verifyToken = async (): Promise<boolean> => {
+  try {
+    const storedToken = await getStoredToken();
+    if (!storedToken) {
+      setAuthToken(null);
+      return false;
+    }
+    
+    setAuthToken(storedToken);
+    
+    await axios.get(`${API_BASE_URL}/auth/account/verify`, {
+      headers: getAuthHeaders(),
+    });
+    return true;
+  } catch (error) {
+    console.error("Token verification failed:", error);
+    setAuthToken(null);
+    return false;
+  }
+};
+
+export const logout = async (): Promise<void> => {
+  try {
+    await axios.post(
+      `${API_BASE_URL}/account/logout`,
+      {},
+      {
+        headers: getAuthHeaders(),
+      }
+    );
+  } catch (error) {
+    console.error("Logout error:", error);
+  } finally {
+    setAuthToken(null);
+  }
 };

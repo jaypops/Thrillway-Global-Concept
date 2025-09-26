@@ -3,6 +3,7 @@ import {
   Routes,
   Route,
   Navigate,
+  useLocation,
 } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
@@ -22,6 +23,7 @@ import { useInviteModal } from "./hooks/useInviteModel";
 import InvitationRegistration from "./pages/InvitationRegistration";
 import { AnimatePresence } from "framer-motion";
 import PageTransition from "./ui/PageTransition";
+import { ChatProvider } from "./context/ChatContext";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -31,114 +33,131 @@ const queryClient = new QueryClient({
   },
 });
 
-interface AdminRoute {
+interface AdminRouteProps {
   children: ReactNode;
 }
 
-interface FieldAgentRoute {
+interface FieldAgentRouteProps {
   children: ReactNode;
 }
 
-const AdminRoute = ({ children }: { children: ReactNode }) => {
+const AdminRoute = ({ children }: AdminRouteProps) => {
   const { user } = useAuth();
   return user?.role === "admin" ? (
-    children
+    <>{children}</>
   ) : (
     <Navigate to="/dashboard" replace />
   );
 };
 
-const FieldAgentRoute = ({ children }: { children: ReactNode }) => {
+const FieldAgentRoute = ({ children }: FieldAgentRouteProps) => {
   const { user } = useAuth();
   return user?.role !== "fieldAgent" ? (
-    children
+    <>{children}</>
   ) : (
     <Navigate to="/dashboard" replace />
   );
 };
+
+// Create a wrapper component to use useLocation properly
+function AnimatedRoutes() {
+  const location = useLocation();
+  
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/login" element={<Login />} />
+        <Route
+          path="/account-management"
+          element={<InvitationRegistration />}
+        />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoutes>
+              <AppLayout />
+            </ProtectedRoutes>
+          }
+        >
+          <Route
+            index
+            element={
+              <PageTransition>
+                <Navigate replace to="/dashboard" />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="dashboard"
+            element={
+              <PageTransition>
+                <Dashboard />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="addproperties"
+            element={
+              <PageTransition>
+                <AddProperties />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="properties"
+            element={
+              <PageTransition>
+                <Properties />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="accountmanagment"
+            element={
+              <PageTransition>
+                <AdminRoute>
+                  <AccountManagment />
+                </AdminRoute>
+              </PageTransition>
+            }
+          />
+          <Route
+            path="messages"
+            element={
+              <PageTransition>
+                <FieldAgentRoute>
+                  <Messages />
+                </FieldAgentRoute>
+              </PageTransition>
+            }
+          />
+        </Route>
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Routes>
+    </AnimatePresence>
+  );
+}
 
 function App() {
   const inviteModal = useInviteModal();
-  const location = window.location;
+  
   return (
     <QueryClientProvider client={queryClient}>
       <ReactQueryDevtools initialIsOpen={false} />
-      <InviteLinkProvider
-        isOpen={inviteModal.isOpen}
-        onOpenChange={inviteModal.onOpenChange}
-      >
-        <DashboardProvider>
-          <AuthProvider>
-            <BrowserRouter>
-              <AnimatePresence mode="wait">
-                <Routes location={location} key={location.pathname}>
-                  <Route
-                    element={
-                      <ProtectedRoutes>
-                        <AppLayout />
-                      </ProtectedRoutes>
-                    }
-                  >
-                    <Route
-                      index
-                      element={
-                        <PageTransition>
-                          <Navigate replace to="login" />
-                        </PageTransition>
-                      }
-                    />
-                    <Route
-                      path="dashboard"
-                      element={
-                        <PageTransition>
-                          <Dashboard />
-                        </PageTransition>
-                      }
-                    />
-                    <Route
-                      path="addproperties"
-                      element={
-                        <PageTransition>
-                          <AddProperties />
-                        </PageTransition>
-                      }
-                    />
-                    <Route
-                      path="properties"
-                      element={
-                        <PageTransition>
-                          <Properties />
-                        </PageTransition>
-                      }
-                    />
-                    <Route
-                      path="accountmanagment"
-                      element={
-                        <AdminRoute>
-                          <AccountManagment />
-                        </AdminRoute>
-                      }
-                    />
-                    <Route
-                      path="messages"
-                      element={
-                        <FieldAgentRoute>
-                          <Messages />
-                        </FieldAgentRoute>
-                      }
-                    />
-                  </Route>
-                  <Route path="login" element={<Login />} />
-                  <Route
-                    path="account-management"
-                    element={<InvitationRegistration />}
-                  />
-                </Routes>
-              </AnimatePresence>
-            </BrowserRouter>
-          </AuthProvider>
-        </DashboardProvider>
-      </InviteLinkProvider>
+      <ChatProvider>
+        <InviteLinkProvider
+          isOpen={inviteModal.isOpen}
+          onOpenChange={inviteModal.onOpenChange}
+        >
+          <DashboardProvider>
+            <AuthProvider>
+              <BrowserRouter>
+                <AnimatedRoutes />
+              </BrowserRouter>
+            </AuthProvider>
+          </DashboardProvider>
+        </InviteLinkProvider>
+      </ChatProvider>
     </QueryClientProvider>
   );
 }

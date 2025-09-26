@@ -7,7 +7,7 @@ function AppLayout() {
   return (
     <SidebarProvider>
       <AppSidebar />
-      <main className="w-full bg-sky-50">
+      <main className="w-full bg-sky-50 min-h-dvh">
         <Toaster position="top-center" />
         <div className="z-100">
           <SidebarTrigger />

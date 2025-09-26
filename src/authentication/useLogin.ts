@@ -7,23 +7,27 @@ import { User } from "@/services/type";
 
 export function useLoginAccount() {
   const navigate = useNavigate();
-  const { setIsAuthenticated, login } = useAuth();
+  const { login } = useAuth();
 
   return useMutation({
     mutationFn: loginAccount,
     onSuccess: (data) => {
+      const { account, token } = data;
+      
       if (
-        !data._id ||
-        !["admin", "fieldAgent", "customerAgent"].includes(data.role)
+        !account._id ||
+        !["admin", "fieldAgent", "customerAgent"].includes(account.role)
       ) {
         throw new Error("Invalid user data received from API");
       }
+      
       const userData: User = {
-        id: data._id,
-        role: data.role as "admin" | "fieldAgent" | "customerAgent",
+        id: account._id,
+        role: account.role as "admin" | "fieldAgent" | "customerAgent",
       };
-      login(userData);
-      setIsAuthenticated(true);
+      
+      login(userData, token);
+      
       toast.success("Account logged in successfully");
       navigate("/dashboard", { replace: true });
     },

@@ -3,7 +3,7 @@ import CreatePropertyForm from "@/features/addProperties/CreatePropertyForm";
 
 export default function AddProperties() {
   return (
-    <div className="w-full">
+    <div className="w-full min-h-dvh">
       <CardHeader>
         <CardTitle className="text-2xl">Add New Property</CardTitle>
         <CardDescription>

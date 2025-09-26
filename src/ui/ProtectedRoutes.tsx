@@ -1,25 +1,20 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import { ReactNode } from "react";
 import Loader from "./Loader";
 
-interface ProtectedRoutesProps {
-  children: ReactNode;
-}
-
-function ProtectedRoutes({ children }: ProtectedRoutesProps) {
-  const { isAuthenticated } = useAuth();
+function ProtectedRoutes({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
 
-  if (isAuthenticated === null) {
+  if (isLoading) {
     return <Loader />;
   }
 
-  return isAuthenticated ? (
-    children
-  ) : (
-    <Navigate to="/login" state={{ from: location }} replace />
-  );
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return <>{children}</>;
 }
 
 export default ProtectedRoutes;

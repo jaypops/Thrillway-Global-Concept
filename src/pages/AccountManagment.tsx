@@ -20,7 +20,7 @@ function AccountManagement() {
   }
 
   return (
-    <div>
+    <div >
       <p className="text-2xl font-semibold pt-2 p-2">Account Management</p>
       <div className="pt-4 pl-8 pb-8 flex justify-between items-center">
         <div>
