@@ -33,7 +33,11 @@ export default function InvitationRegistration() {
           setError(response.message || "Invalid or expired invitation link");
         }
       } catch (err) {
-        setError(err.message || "Failed to validate invitation");
+        if (err instanceof Error) {
+          setError(err.message || "Failed to validate invitation");
+        } else {
+          setError("Failed to validate invitation");
+        }
       } finally {
         setLoading(false);
       }

@@ -16,35 +16,26 @@ import { BiMessageSquareDetail } from "react-icons/bi";
 import { NavLink } from "react-router-dom";
 import { IconType } from "react-icons";
 import { Logout } from "@/authentication/Logout";
+import { useSidebar } from "@/components/ui/sidebar";
 
 interface MenuItem {
   title: string;
   icon: IconType;
 }
+
 const items: MenuItem[] = [
-  {
-    title: "Dashboard",
-    icon: MdOutlineSpaceDashboard,
-  },
-  {
-    title: "Add Properties",
-    icon: MdAddBox,
-  },
-  {
-    title: "Properties",
-    icon: MdHouse,
-  },
-  {
-    title: "Account Managment",
-    icon: MdAccountCircle,
-  },
-  {
-    title: "Messages",
-    icon: BiMessageSquareDetail,
-  },
+  { title: "Dashboard", icon: MdOutlineSpaceDashboard },
+  { title: "Add Properties", icon: MdAddBox },
+  { title: "Properties", icon: MdHouse },
+  { title: "Account Managment", icon: MdAccountCircle },
+  { title: "Messages", icon: BiMessageSquareDetail },
 ];
 
 export function AppSidebar() {
+  const { setOpen } = useSidebar();
+
+  const handleClose = () => setOpen(false);
+
   return (
     <Sidebar className="z-100">
       <SidebarContent className="w-64 bg-blue-800 text-white flex flex-col">
@@ -53,16 +44,21 @@ export function AppSidebar() {
         </div>
         <SidebarMenu>
           {items.map((item) => (
-            <nav className="flex-1 overflow-y-auto py-2">
+            <nav className="flex-1 overflow-y-auto py-2" key={item.title}>
               <ul className="space-y-1 px-4">
-                <SidebarMenuItem key={item.title}>
+                <SidebarMenuItem>
                   <SidebarMenuButton asChild>
                     <NavLink
-                      key={item.title}
                       to={`/${item.title.toLowerCase().replace(/\s+/g, "")}`}
+                      className={({ isActive }) =>
+                        `flex items-center px-3 py-2 rounded-md hover:bg-blue-700 transition-colors ${
+                          isActive ? "bg-blue-700" : "text-white"
+                        }`
+                      }
+                      onClick={handleClose} // 👈 close on click
                     >
                       <item.icon />
-                      <span className=" text-base font-medium ">
+                      <span className="ml-2 text-base font-medium">
                         {item.title}
                       </span>
                     </NavLink>
@@ -85,3 +81,4 @@ export function AppSidebar() {
     </Sidebar>
   );
 }
+export default AppSidebar;

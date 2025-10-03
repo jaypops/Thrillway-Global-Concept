@@ -47,7 +47,6 @@ function CreateAccountForm({
     onSubmit,
     handleImageUpload,
     isSubmitting,
-    isCreating,
     image,
     removeImg,
   } = useAccountForm();
@@ -114,7 +113,7 @@ function CreateAccountForm({
                     <Input
                       placeholder="Enter your full name"
                       className="text-xs xs:text-lg"
-                      disabled={isCreating}
+                      disabled={isSubmitting}
                       {...field}
                     />
                   </FormControl>
@@ -132,7 +131,7 @@ function CreateAccountForm({
                     <Input
                       placeholder="Choose a username"
                       className="text-xs xs:text-lg"
-                      disabled={isCreating}
+                      disabled={isSubmitting}
                       {...field}
                     />
                   </FormControl>
@@ -151,7 +150,7 @@ function CreateAccountForm({
                       type="tel"
                       placeholder="Enter your phone number"
                       className="text-xs xs:text-lg"
-                      disabled={isCreating}
+                      disabled={isSubmitting}
                       {...field}
                     />
                   </FormControl>
@@ -168,7 +167,7 @@ function CreateAccountForm({
                   <FormControl>
                     <Input
                       type="tel"
-                      disabled={isCreating}
+                      disabled={isSubmitting}
                       placeholder="Enter emergency contact number"
                       className="text-xs xs:text-lg"
                       {...field}
@@ -187,7 +186,7 @@ function CreateAccountForm({
                   <FormControl>
                     <Input
                       type="email"
-                      disabled={isCreating}
+                      disabled={isSubmitting}
                       placeholder="Enter your email address"
                       className="text-xs xs:text-lg"
                       {...field}
@@ -207,7 +206,7 @@ function CreateAccountForm({
                     <Input
                       placeholder="Enter your address"
                       className="text-xs xs:text-lg"
-                      disabled={isCreating}
+                      disabled={isSubmitting}
                       {...field}
                     />
                   </FormControl>
@@ -226,7 +225,7 @@ function CreateAccountForm({
                       type="password"
                       placeholder="Enter your password"
                       className="text-xs xs:text-lg"
-                      disabled={isCreating}
+                      disabled={isSubmitting}
                       {...field}
                     />
                   </FormControl>
@@ -246,7 +245,7 @@ function CreateAccountForm({
                       <FormControl>
                         <Button
                           variant="outline"
-                          disabled={isCreating}
+                          disabled={isSubmitting}
                           className={`w-full pl-3 text-left font-normal text-xs xs:text-lg ${
                             !field.value ? "text-muted-foreground" : ""
                           }`}
@@ -265,7 +264,7 @@ function CreateAccountForm({
                         mode="single"
                         selected={field.value}
                         onSelect={field.onChange}
-                        disabled={isCreating}
+                        disabled={isSubmitting}
                         initialFocus
                       />
                     </PopoverContent>
@@ -283,7 +282,7 @@ function CreateAccountForm({
                   <FormControl>
                     <Input
                       type="file"
-                      disabled={isCreating}
+                      disabled={isSubmitting}
                       className="text-xs xs:text-lg"
                       accept="image/*"
                       onChange={(e) => {
@@ -314,7 +313,7 @@ function CreateAccountForm({
                       <Button
                         type="button"
                         variant="ghost"
-                        disabled={isCreating}
+                        disabled={isSubmitting}
                         className="absolute top-1 left-1 bg-black/70 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80"
                         onClick={removeImg}
                       >
@@ -362,9 +361,9 @@ function CreateAccountForm({
           <Button
             type="submit"
             className="w-full md:w-auto cursor-pointer"
-            disabled={isSubmitting || isCreating}
+            disabled={isSubmitting}
           >
-            {isSubmitting || isCreating ? (
+            {isSubmitting  ? (
               <>
                 <Loader2 />
                 Submitting...

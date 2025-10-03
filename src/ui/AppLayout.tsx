@@ -5,9 +5,9 @@ import { Toaster } from "react-hot-toast";
 
 function AppLayout() {
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={false}>
       <AppSidebar />
-      <main className="w-full bg-sky-50 min-h-dvh">
+      <main className="w-full bg-sky-50 min-h-screen p-0 md:pb-6 lg:pb-6">
         <Toaster position="top-center" />
         <div className="z-100">
           <SidebarTrigger />

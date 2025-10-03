@@ -27,7 +27,7 @@ function Roles() {
             <FormControl>
               <SelectTrigger
                 className="w-full cursor-pointer"
-                disableIconWhenSelected={true}
+                // disableIconWhenSelected={true}
                 value={field.value}
               >
                 <SelectValue placeholder="Select" />
