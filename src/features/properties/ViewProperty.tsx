@@ -42,10 +42,14 @@ interface PropertyItem {
   icon: IconType;
 }
 
-const getNestedProperty = (obj: Property, key: string) => {
-  return key
-    .split(".")
-    .reduce((o, k) => (o && o[k] !== undefined ? o[k] : undefined), obj);
+// Fixed: Properly type the nested property access
+const getNestedProperty = (obj: Property, key: string): any => {
+  return key.split(".").reduce((o: any, k: string) => {
+    if (o && typeof o === 'object' && k in o) {
+      return o[k];
+    }
+    return undefined;
+  }, obj);
 };
 
 const PropertyList: PropertyItem[] = [
@@ -98,7 +102,6 @@ function ViewProperty({ propertyId, onClose }: ViewPropertyProps) {
   if (error)
     return <div className="p-4 text-red-500">Error: {error.message}</div>;
   if (!property) return <div className="p-4">Property not found</div>;
-  console.log("Property data:", property);
 
   return (
     <div className="fixed inset-0 flex items-center justify-center p-4 z-150 w-full h-screen bg-black/40 backdrop-blur-none transition-all duration-500">
@@ -167,10 +170,14 @@ function ViewProperty({ propertyId, onClose }: ViewPropertyProps) {
           <div className="flex flex-wrap gap-4 text-sm">
             {PropertyList.filter((item) => {
               const value = getNestedProperty(property, item.key);
-              return (
-                !item.key.startsWith("features.") ||
-                (typeof value === "boolean" && value === true)
-              );
+              
+              // For feature items (nested properties), only show if value is true
+              if (item.key.startsWith("features.")) {
+                return value === true;
+              }
+              
+              // For regular properties, show if value exists and is not empty
+              return value != null && value !== "";
             }).map((item) => {
               const value = getNestedProperty(property, item.key);
               return (
@@ -188,7 +195,7 @@ function ViewProperty({ propertyId, onClose }: ViewPropertyProps) {
                         ? value
                           ? "Yes"
                           : "No"
-                        : value
+                        : String(value) // Ensure it's a string
                       : "N/A"}
                   </h3>
                 </span>
@@ -198,13 +205,12 @@ function ViewProperty({ propertyId, onClose }: ViewPropertyProps) {
           <div className="pt-6">
             <h3 className="text-lg font-semibold mb-2">Documents</h3>
             {property.documents && property.documents.length > 0 ? (
-              property.documents.map((document) => (
+              property.documents.map((document, index) => (
                 <div
                   className="p-2 px-4 border border-transparent rounded-lg flex items-center bg-gray-300 max-w-[50rem] gap-6 text-sm"
-                  key={document}
+                  key={index} // Use index as key since document might not be unique
                 >
                   <span>
-                    {" "}
                     <FaRegClipboard
                       className="cursor-pointer text-gray-600 hover:text-gray-800"
                       onClick={() => {

@@ -1,4 +1,3 @@
-// context/AuthContext.tsx
 import {
   createContext,
   useContext,
@@ -6,7 +5,12 @@ import {
   useState,
   ReactNode,
 } from "react";
-import { verifyToken, getStoredToken, setAuthToken, logout as apiLogout } from "../services/apiAccount";
+import {
+  verifyToken,
+  getStoredToken,
+  setAuthToken,
+  logout as apiLogout,
+} from "../services/apiAccount";
 import { User } from "@/services/type";
 
 interface AuthContextType {
@@ -15,6 +19,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (userData: User, token: string) => void;
   logout: () => void;
+  setIsAuthenticated: (value: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -23,6 +28,7 @@ const AuthContext = createContext<AuthContextType>({
   isLoading: true,
   login: () => {},
   logout: () => {},
+  setIsAuthenticated: () => {},
 });
 
 interface AuthProviderProps {
@@ -38,8 +44,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const checkAuth = async () => {
       try {
         setIsLoading(true);
-        
-        // Check if we have a stored token first
+
         const storedToken = await getStoredToken();
         if (!storedToken) {
           setUser(null);
@@ -47,14 +52,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           setIsLoading(false);
           return;
         }
-        
-        // Set the token and verify
+
         setAuthToken(storedToken);
         const isValid = await verifyToken();
-        
+
         if (isValid && storedToken) {
           try {
-            // Decode the token to get user info
             const decoded = JSON.parse(atob(storedToken.split(".")[1]));
             setUser({ id: decoded._id, role: decoded.role });
             setIsAuthenticated(true);
@@ -78,7 +81,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setIsLoading(false);
       }
     };
-    
+
     checkAuth();
   }, []);
 
@@ -92,7 +95,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setUser(null);
     setIsAuthenticated(false);
     setAuthToken(null);
-    // Call the API logout to remove token from backend
     try {
       await apiLogout();
     } catch (error) {
@@ -102,7 +104,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, isAuthenticated, isLoading, login, logout }}
+      value={{
+        user,
+        isAuthenticated,
+        isLoading,
+        login,
+        logout,
+        setIsAuthenticated,
+      }}
     >
       {children}
     </AuthContext.Provider>

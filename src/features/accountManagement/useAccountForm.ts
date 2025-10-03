@@ -63,9 +63,13 @@ export const useAccountForm = ({
 
     try {
       Object.entries(data).forEach(([key, value]) => {
-        if (key === "startDate" && value) {
+        if (value === undefined || value === null) return;
+
+        if (key === "startDate" && value instanceof Date) {
           formData.append(key, format(value, "yyyy-MM-dd"));
-        } else if (key !== "image" && value) {
+        } else if (key === "image" && value instanceof File) {
+          formData.append(key, value);
+        } else {
           formData.append(key, value.toString());
         }
       });
@@ -78,6 +82,7 @@ export const useAccountForm = ({
         onSuccess: () => {
           form.reset();
           setImage(null);
+          toast.success("Account created successfully!");
         },
         onError: (error) => {
           console.error("Error submitting form:", error);
@@ -96,8 +101,7 @@ export const useAccountForm = ({
     form,
     onSubmit,
     handleImageUpload,
-    isSubmitting,
-    isCreating,
+    isSubmitting: isSubmitting || isCreating,
     image,
     setImage,
     removeImg,
