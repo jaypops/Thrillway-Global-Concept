@@ -2,7 +2,7 @@ import { uploadFile } from "./apiProperty";
 import axios from "axios";
 import { Account, LoginResponse } from "./type";
 
-const API_BASE_URL = "https://thrillway-global-concept-backend.onrender.com/api";
+const API_BASE_URL = "https://thrillway-global-concept-backend.onrender.com/api || ";
 
 
 type LoginData = Pick<Account, "username" | "password">;
