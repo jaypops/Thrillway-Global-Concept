@@ -1,6 +1,7 @@
 import axios from "axios";
 import { Property } from "./type";
-const API_BASE_URL = "http://localhost:3000/api";
+
+const API_BASE_URL = "https://thrillway-global-concept-backend.onrender.com/api";;
 
 export const fetchProperties = async (): Promise<Property[]> => {
   const res = await axios.get(`${API_BASE_URL}/propertys`);
