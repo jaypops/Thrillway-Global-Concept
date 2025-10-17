@@ -2,45 +2,28 @@ import { uploadFile } from "./apiProperty";
 import axios from "axios";
 import { Account, LoginResponse } from "./type";
 
-const API_BASE_URL = "https://thrillway-global-concept-backend.onrender.com/api";
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+// const FRONTEND_URL = import.meta.env.VITE_FRONTEND_URL;
 
 type LoginData = Pick<Account, "username" | "password">;
 
-let authToken: string | null = null;
-
-export const setAuthToken = (token: string | null) => {
-  authToken = token;
-};
-
-export const getAuthToken = (): string | null => {
-  return authToken;
-};
-
-const getAuthHeaders = () => {
-  return authToken ? { Authorization: `Bearer ${authToken}` } : {};
-};
-
 export const fetchStaffDetails = async (): Promise<Account[]> => {
   try {
+    console.log("🔄 Fetching staff details...");
     const res = await axios.get(`${API_BASE_URL}/account`, {
-      headers: getAuthHeaders(),
+      withCredentials: true,
     });
-    console.log("API Response:", res.data);
-    return res.data;
+
+    const data = res.data;
+    return Array.isArray(data) ? data : data.accounts || [];
   } catch (error) {
-    console.error("Fetch staff details failed:", error);
+    console.error("❌ Fetch staff details failed:", error);
     throw error;
   }
 };
 
 export async function createAccount(formData: FormData): Promise<Account> {
   try {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      throw new Error("Please log in to create an account");
-    }
-
     const image = formData.get("image") as File | null;
     let imageUrl: string | undefined;
     if (image && image.size > 0) {
@@ -74,6 +57,7 @@ export async function createAccount(formData: FormData): Promise<Account> {
         headers: {
           "Content-Type": "application/json",
         },
+        withCredentials: true,
       }
     );
 
@@ -95,40 +79,14 @@ export const deleteAccount = async ({
   id: string;
 }): Promise<Account> => {
   const res = await axios.delete(`${API_BASE_URL}/account/${id}`, {
-    headers: getAuthHeaders(),
+    withCredentials: true,
   });
   return res.data;
 };
 
-export const storeToken = async (token: string): Promise<void> => {
-  try {
-    await axios.post(
-      `${API_BASE_URL}/account/token`,
-      { token },
-      {
-        headers: getAuthHeaders(),
-      }
-    );
-  } catch (error) {
-    console.error("Failed to store token:", error);
-    throw new Error("Failed to store authentication token");
-  }
-};
-
-export const getStoredToken = async (): Promise<string | null> => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/account/token`, {
-      headers: getAuthHeaders(),
-    });
-    return response.data.token;
-  } catch (error) {
-    console.error("Failed to retrieve token:", error);
-    return null;
-  }
-};
-
-// In your apiAccount.ts file, update the loginAccount function
-export const loginAccount = async (formData: FormData): Promise<{account: Account, token: string}> => {
+export const loginAccount = async (
+  formData: FormData
+): Promise<{ account: Account }> => {
   try {
     const loginData: LoginData = {
       username: formData.get("username") as string,
@@ -139,30 +97,21 @@ export const loginAccount = async (formData: FormData): Promise<{account: Accoun
       `${API_BASE_URL}/account/login`,
       loginData,
       {
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
+        withCredentials: true,
       }
     );
 
-    // Set the token in memory and store in backend
-    setAuthToken(response.data.token);
-    await storeToken(response.data.token);
-    
-    // Return both account and token
-    return {
-      account: response.data.account,
-      token: response.data.token
-    };
+    return { account: response.data.account };
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      const errorMessage = error.response?.data?.message || "Login failed";
+      const errorMessage =
+        error.response?.data?.message || "Invalid username or password.";
       throw new Error(errorMessage);
     }
     throw new Error("An unexpected error occurred");
   }
 };
-
 
 export const generateInviteLink = async ({
   role,
@@ -174,13 +123,10 @@ export const generateInviteLink = async ({
       `${API_BASE_URL}/account/invite`,
       { role },
       {
-        headers: {
-          "Content-Type": "application/json",
-          ...getAuthHeaders(),
-        },
+        headers: { "Content-Type": "application/json" },
+        withCredentials: true,
       }
     );
-
     return response.data.invitationLink;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -198,9 +144,7 @@ export const validateInvitationToken = async (token: string) => {
       `${API_BASE_URL}/account/invite/validate`,
       {
         params: { token },
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
       }
     );
     console.log("Validate invitation response:", response.data);
@@ -223,37 +167,22 @@ export const validateInvitationToken = async (token: string) => {
 
 export const verifyToken = async (): Promise<boolean> => {
   try {
-    const storedToken = await getStoredToken();
-    if (!storedToken) {
-      setAuthToken(null);
-      return false;
-    }
-    
-    setAuthToken(storedToken);
-    
     await axios.get(`${API_BASE_URL}/auth/account/verify`, {
-      headers: getAuthHeaders(),
+      withCredentials: true,
     });
     return true;
   } catch (error) {
     console.error("Token verification failed:", error);
-    setAuthToken(null);
     return false;
   }
 };
 
 export const logout = async (): Promise<void> => {
   try {
-    await axios.post(
-      `${API_BASE_URL}/account/logout`,
-      {},
-      {
-        headers: getAuthHeaders(),
-      }
-    );
+    await axios.post(`${API_BASE_URL}/account/logout`, null, {
+      withCredentials: true,
+    });
   } catch (error) {
     console.error("Logout error:", error);
-  } finally {
-    setAuthToken(null);
   }
 };

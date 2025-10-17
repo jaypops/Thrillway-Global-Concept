@@ -1,20 +1,29 @@
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Outlet } from "react-router-dom";
-import { AppSidebar } from "./Sidebar";
+import { Sidebar } from "./Sidebar";
 import { Toaster } from "react-hot-toast";
+import Header from "./Header";
+import BottomNavbar from "./BottomNavbar";
 
 function AppLayout() {
   return (
-    <SidebarProvider defaultOpen={false}>
-      <AppSidebar />
-      <main className="w-full bg-sky-50 min-h-screen p-0 md:pb-6 lg:pb-6">
-        <Toaster position="top-center" />
-        <div className="z-100">
-          <SidebarTrigger />
+    <div className="w-full bg-sky-50 min-h-screen">
+      <Header />
+
+      <div className="flex items-center justify-center z-20">
+        <div className="fixed left-0 top-20 h-screen  hidden md:block">
+          <Sidebar />
         </div>
-        <Outlet />
-      </main>
-    </SidebarProvider>
+
+        <main className="ml-0 md:ml-60 flex-1 overflow-y-auto pl-0 md:pl-6 pb-15 md:pb-0">
+          <Toaster position="top-center" />
+          <Outlet />
+        </main>
+      </div>
+
+      <div className="md:hidden">
+        <BottomNavbar />
+      </div>
+    </div>
   );
 }
 

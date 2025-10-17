@@ -20,7 +20,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
         className={`max-w-[70%] rounded-lg p-3 relative ${isAdmin ? 'bg-blue-600 text-white' : 'bg-white text-gray-800'}`}
       >
         {!isAdmin && (
-          <div className="flex items-center mb-1 text-xs text-gray-500 space-x-1">
+          <div className="flex items-center mb-1 text-xs md:text-sm text-gray-500 space-x-1 truncate">
             <span className="font-medium py-0.5 px-1.5 rounded bg-gray-100">
               ID: {message.id}
             </span>
@@ -37,7 +37,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
             </button>
           </div>
         )}
-        <p className="whitespace-pre-wrap">{message.content}</p>
+        <p className="whitespace-pre-wrap text-xs md:text-sm">{message.content}</p>
         <div
           className={`text-xs mt-1 ${isAdmin ? 'text-blue-200' : 'text-gray-500'} text-right`}
         >

@@ -1,47 +1,62 @@
-import React from "react";
+import React, { useState } from "react";
 import { useChat, Chat } from "@/context/ChatContext";
 import { format } from "date-fns";
 import { SearchIcon } from "lucide-react";
+
 const ChatSidebar: React.FC = () => {
   const { chats, activeChat, setActiveChat } = useChat();
+  const [search, setSearch] = useState("");
+
+  const filteredChats = chats.filter((chat) =>
+    chat.user.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
-    <div className="w-full h-full bg-white border-r border-gray-200 flex flex-col">
- 
-      <div className="p-3 border-b border-gray-200">
+    <div className="w-full h-full bg-white  border-gray-200 flex flex-col">
+      <div className="p-3 border-b border-gray-200 sticky top-0 z-10 bg-white">
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <SearchIcon className="h-5 w-5 text-gray-400" />
           </div>
           <input
             type="text"
-            placeholder="Search or start a new chat"
-            className="w-full py-2 pl-10 pr-4 rounded-lg bg-gray-100 border-none focus:ring-2 focus:ring-blue-500 focus:bg-white"
+            placeholder="Search for chat"
+            className="w-full py-2 pl-10 pr-4 rounded-lg bg-gray-100 border-none"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
           />
         </div>
       </div>
       <div className="flex-1 overflow-y-auto">
-        {chats.map((chat) => (
-          <ChatItem
-            key={chat.id}
-            chat={chat}
-            isActive={activeChat?.id === chat.id}
-            onClick={() => setActiveChat(chat)}
-          />
-        ))}
+        {filteredChats.length > 0 ? (
+          filteredChats.map((chat) => (
+            <ChatItem
+              key={chat.id}
+              chat={chat}
+              isActive={activeChat?.id === chat.id}
+              onClick={() => setActiveChat(chat)}
+            />
+          ))
+        ) : (
+          <div className="p-4 text-center text-gray-500">
+            No chats found
+          </div>
+        )}
       </div>
     </div>
   );
 };
+
 interface ChatItemProps {
   chat: Chat;
   isActive: boolean;
   onClick: () => void;
 }
+
 const ChatItem: React.FC<ChatItemProps> = ({ chat, isActive, onClick }) => {
   return (
     <div
-      className={`p-3 flex items-center cursor-pointer hover:bg-gray-50 ${
+      className={`p-3 flex items-center cursor-pointer hover:bg-gray-50 rounded-2xl ${
         isActive ? "bg-gray-100" : ""
       }`}
       onClick={onClick}
@@ -84,4 +99,5 @@ const ChatItem: React.FC<ChatItemProps> = ({ chat, isActive, onClick }) => {
     </div>
   );
 };
+
 export default ChatSidebar;

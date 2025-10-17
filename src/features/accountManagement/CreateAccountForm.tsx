@@ -25,23 +25,24 @@ import {
 } from "@/components/ui/popover";
 import { useAccountForm } from "./useAccountForm";
 import { useInviteLink } from "@/context/InviteLinkContext";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useOutletContext } from "react-router-dom";
 import { useEffect } from "react";
-import Loader2 from "@/ui/Loader2";
+import { Spinner } from "@/components/ui/spinner";
 
 interface CreateAccountFormProps {
-  setShowForm: React.Dispatch<React.SetStateAction<boolean>>;
-  setSelectedRole?: React.Dispatch<
-    React.SetStateAction<"admin" | "fieldAgent" | "customerAgent" | null>
-  >;
+  setShowForm?: React.Dispatch<React.SetStateAction<boolean>>;
   isInvitationFlow?: boolean;
 }
 
 function CreateAccountForm({
   setShowForm,
-  setSelectedRole,
   isInvitationFlow = false,
 }: CreateAccountFormProps) {
+  const { setSelectedRole } = useOutletContext<{
+    setSelectedRole: React.Dispatch<
+      React.SetStateAction<"admin" | "fieldAgent" | "customerAgent" | null>
+    >;
+  }>();
   const {
     form,
     onSubmit,
@@ -50,8 +51,7 @@ function CreateAccountForm({
     image,
     removeImg,
   } = useAccountForm();
-
-  const { setRole: setInviteRole, } = useInviteLink();
+  const { setRole: setInviteRole } = useInviteLink();
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
@@ -62,9 +62,7 @@ function CreateAccountForm({
         | "customerAgent";
       if (role) {
         form.setValue("role", role);
-        if (setSelectedRole) {
-          setSelectedRole(role);
-        }
+        setSelectedRole(role);
         if (setInviteRole) {
           setInviteRole(role);
         }
@@ -75,9 +73,7 @@ function CreateAccountForm({
   const handleRoleChange = (value: string) => {
     const roleValue = value as "admin" | "fieldAgent" | "customerAgent";
     form.setValue("role", roleValue);
-    if (setSelectedRole) {
-      setSelectedRole(roleValue);
-    }
+    setSelectedRole(roleValue);
     if (isInvitationFlow && setInviteRole) {
       setInviteRole(roleValue);
     }
@@ -92,14 +88,14 @@ function CreateAccountForm({
         }
       }
       await onSubmit(data);
-      setShowForm(false);
+      setShowForm?.(false);
     } catch (error) {
       console.error("Submission failed:", error);
     }
   };
 
   return (
-    <div className="px-7 sm:px-14 pb-8">
+    <div className="px-7 sm:px-9 pb-8">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -112,7 +108,7 @@ function CreateAccountForm({
                   <FormControl>
                     <Input
                       placeholder="Enter your full name"
-                      className="text-xs xs:text-lg"
+                      className="text-xs xs:text-lg focus:ring-2 focus:!ring-blue-600/40 focus:!border-blue-600/40"
                       disabled={isSubmitting}
                       {...field}
                     />
@@ -130,7 +126,7 @@ function CreateAccountForm({
                   <FormControl>
                     <Input
                       placeholder="Choose a username"
-                      className="text-xs xs:text-lg"
+                      className="text-xs xs:text-lg focus:ring-2 focus:!ring-blue-600/40 focus:!border-blue-600/40"
                       disabled={isSubmitting}
                       {...field}
                     />
@@ -149,7 +145,7 @@ function CreateAccountForm({
                     <Input
                       type="tel"
                       placeholder="Enter your phone number"
-                      className="text-xs xs:text-lg"
+                      className="text-xs xs:text-lg focus:ring-2 focus:!ring-blue-600/40 focus:!border-blue-600/40"
                       disabled={isSubmitting}
                       {...field}
                     />
@@ -169,7 +165,7 @@ function CreateAccountForm({
                       type="tel"
                       disabled={isSubmitting}
                       placeholder="Enter emergency contact number"
-                      className="text-xs xs:text-lg"
+                      className="text-xs xs:text-lg focus:ring-2 focus:!ring-blue-600/40 focus:!border-blue-600/40"
                       {...field}
                     />
                   </FormControl>
@@ -188,7 +184,7 @@ function CreateAccountForm({
                       type="email"
                       disabled={isSubmitting}
                       placeholder="Enter your email address"
-                      className="text-xs xs:text-lg"
+                      className="text-xs xs:text-lg focus:ring-2 focus:!ring-blue-600/40 focus:!border-blue-600/40"
                       {...field}
                     />
                   </FormControl>
@@ -205,7 +201,7 @@ function CreateAccountForm({
                   <FormControl>
                     <Input
                       placeholder="Enter your address"
-                      className="text-xs xs:text-lg"
+                      className="text-xs xs:text-lg focus:ring-2 focus:!ring-blue-600/40 focus:!border-blue-600/40"
                       disabled={isSubmitting}
                       {...field}
                     />
@@ -224,7 +220,7 @@ function CreateAccountForm({
                     <Input
                       type="password"
                       placeholder="Enter your password"
-                      className="text-xs xs:text-lg"
+                      className="text-xs xs:text-lg focus:ring-2 focus:!ring-blue-600/40 focus:!border-blue-600/40"
                       disabled={isSubmitting}
                       {...field}
                     />
@@ -233,7 +229,6 @@ function CreateAccountForm({
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
               name="startDate"
@@ -283,7 +278,7 @@ function CreateAccountForm({
                     <Input
                       type="file"
                       disabled={isSubmitting}
-                      className="text-xs xs:text-lg"
+                      className="text-xs xs:text-lg focus:ring-2 focus:!ring-blue-600/40 focus:!border-blue-600/40"
                       accept="image/*"
                       onChange={(e) => {
                         const file = e.target.files?.[0];
@@ -325,7 +320,6 @@ function CreateAccountForm({
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
               name="role"
@@ -335,7 +329,7 @@ function CreateAccountForm({
                   <Select
                     onValueChange={handleRoleChange}
                     defaultValue={field.value}
-                    disabled={!!field.value}
+                    disabled={isInvitationFlow && !!field.value}
                   >
                     <FormControl>
                       <SelectTrigger
@@ -363,9 +357,9 @@ function CreateAccountForm({
             className="w-full md:w-auto cursor-pointer"
             disabled={isSubmitting}
           >
-            {isSubmitting  ? (
+            {isSubmitting ? (
               <>
-                <Loader2 />
+                <Spinner />
                 Submitting...
               </>
             ) : (

@@ -26,7 +26,7 @@ const chartConfig = {
 export function PropertyTypeChart() {
   const { data } = useDashboard();
   const { isPending, error, data: propertyData } = useProperty();
-  
+
   const chartData =
     data?.propertyStats
       ?.map((stat) => ({
@@ -39,41 +39,54 @@ export function PropertyTypeChart() {
 
   if (isPending)
     return (
-      <div className="p-4">
+      <div className="p-2 sm:p-4">
         <Loader />
       </div>
     );
 
   if (error) {
     console.error("Error loading properties:", error);
-    return <div className="p-4 text-red-500">Failed to load properties.</div>;
+    return (
+      <div className="p-2 sm:p-4 text-red-500">Failed to load properties.</div>
+    );
   }
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Property Distribution</CardTitle>
-        <CardDescription>Number of properties by type</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
-          <BarChart
-            data={chartData}
-            margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
+    <Card className="p-1 sm:p-0 shadow-md">
+      <div className="pt-6">
+        <CardHeader className="space-y-1 sm:space-y-2">
+          <CardTitle className="text-base sm:text-lg">
+            Property Distribution
+          </CardTitle>
+          <CardDescription className="text-xs sm:text-sm">
+            Number of properties by type
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-2 sm:p-4">
+          <ChartContainer
+            config={chartConfig}
+            className="min-h-[280px] sm:min-h-[300px] w-full"
           >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis
-              dataKey="type"
-              angle={-45}
-              textAnchor="end"
-              height={100}
-              fontSize={12}
-            />
-            <YAxis />
-            <ChartTooltip content={<ChartTooltipContent />} />
-            <Bar dataKey="count" fill="#3B82F6" radius={2} />
-          </BarChart>
-        </ChartContainer>
-      </CardContent>
+            <BarChart
+              data={chartData}
+              margin={{ top: 10, right: 0, left: 0, bottom: 3 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis
+                dataKey="type"
+                angle={-45}
+                textAnchor="end"
+                height={70}
+                fontSize={10}
+                interval={0}
+              />
+              <YAxis fontSize={10} />
+              <ChartTooltip content={<ChartTooltipContent />} />
+              <Bar dataKey="count" fill="#3B82F6" radius={8} />
+            </BarChart>
+          </ChartContainer>
+        </CardContent>
+      </div>
     </Card>
   );
 }

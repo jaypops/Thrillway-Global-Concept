@@ -2,19 +2,21 @@ import { useQueryClient } from "@tanstack/react-query";
 import { usePropertyById } from "../usePropertyById";
 import CreatePropertyForm from "../addProperties/CreatePropertyForm";
 import Loader from "@/ui/Loader";
+import { useNavigate, useParams } from "react-router-dom";
 
-interface EditPropertyProps {
-  propertyId: string;
-  onClose: () => void;
-  onSuccess?: () => void;
-  id?: string;
-}
-
-function EditProperty({ propertyId, onClose }: EditPropertyProps) {
+function EditProperty() {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const propertyId = id!;
   const queryClient = useQueryClient();
   const { data: property, isPending, error } = usePropertyById({ propertyId });
 
-  if (isPending) return <div className="p-4"><Loader /></div>;
+  if (isPending)
+    return (
+      <div className="p-4">
+        <Loader />
+      </div>
+    );
   if (error)
     return <div className="p-4 text-red-500">Error loading property</div>;
   if (!property) return <div className="p-4">Property not found</div>;
@@ -25,7 +27,7 @@ function EditProperty({ propertyId, onClose }: EditPropertyProps) {
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Edit Property</h2>
           <button
-            onClick={onClose}
+            onClick={() => navigate(-1)}
             className="text-gray-500 hover:text-gray-700 cursor-pointer"
           >
             ✕
@@ -37,9 +39,10 @@ function EditProperty({ propertyId, onClose }: EditPropertyProps) {
           initialValues={property}
           onSuccess={() => {
             queryClient.invalidateQueries({
-              queryKey: ["property"],
+              queryKey: ["property", propertyId],
             });
-            onClose();
+            queryClient.invalidateQueries({ queryKey: ["properties"] });
+            navigate(-1);
           }}
         />
       </div>

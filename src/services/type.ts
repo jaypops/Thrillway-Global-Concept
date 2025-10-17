@@ -50,7 +50,6 @@ export type Account = {
 export interface LoginResponse {
   success: boolean;
   message: string;
-  token: string;
   account: Account;
 }
 
@@ -106,3 +105,35 @@ export interface DashboardData {
     revenue: number;
   }[];
 }
+
+//Message
+
+export type Message = {
+  id: string;
+  content: string;
+  sender: "user" | "admin";
+  timestamp: Date;
+};
+export type Chat = {
+  id: string;
+  user: {
+    id: string;
+    name: string;
+    avatar: string;
+    online: boolean;
+    lastSeen?: Date;
+  };
+  messages: Message[];
+  unreadCount: number;
+  lastMessage?: Message;
+};
+export type ChatContextType = {
+  chats: Chat[];
+  activeChat: Chat | null;
+  setActiveChat: (chat: Chat | null) => void;
+  sendMessage: (content: string) => void;
+  copyMessageId: (id: string) => void;
+  isMobileView: boolean;
+  showSidebar: boolean;
+  setShowSidebar: (show: boolean) => void;
+};

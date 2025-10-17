@@ -1,12 +1,4 @@
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar";
-import {
   MdOutlineSpaceDashboard,
   MdAddBox,
   MdHouse,
@@ -15,70 +7,54 @@ import {
 import { BiMessageSquareDetail } from "react-icons/bi";
 import { NavLink } from "react-router-dom";
 import { IconType } from "react-icons";
-import { Logout } from "@/authentication/Logout";
-import { useSidebar } from "@/components/ui/sidebar";
 
 interface MenuItem {
   title: string;
   icon: IconType;
+  path: string;
 }
 
 const items: MenuItem[] = [
-  { title: "Dashboard", icon: MdOutlineSpaceDashboard },
-  { title: "Add Properties", icon: MdAddBox },
-  { title: "Properties", icon: MdHouse },
-  { title: "Account Managment", icon: MdAccountCircle },
-  { title: "Messages", icon: BiMessageSquareDetail },
+  { title: "Dashboard", icon: MdOutlineSpaceDashboard, path: "/dashboard" },
+  { title: "Add Properties", icon: MdAddBox, path: "/addproperties" },
+  { title: "Properties", icon: MdHouse, path: "/properties" },
+  {
+    title: "Account Managment",
+    icon: MdAccountCircle,
+    path: "/accountmanagment",
+  },
+  { title: "Messages", icon: BiMessageSquareDetail, path: "/messages" },
 ];
 
-export function AppSidebar() {
-  const { setOpen } = useSidebar();
-
-  const handleClose = () => setOpen(false);
+export function Sidebar() {
+  // const handleClose = () => setOpen(false);
 
   return (
-    <Sidebar className="z-100">
-      <SidebarContent className="w-64 bg-blue-800 text-white flex flex-col">
-        <div className="p-4 border-b border-blue-700">
-          <SidebarGroupLabel>LOGO</SidebarGroupLabel>
-        </div>
-        <SidebarMenu>
-          {items.map((item) => (
-            <nav className="flex-1 overflow-y-auto py-2" key={item.title}>
-              <ul className="space-y-1 px-4">
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <NavLink
-                      to={`/${item.title.toLowerCase().replace(/\s+/g, "")}`}
-                      className={({ isActive }) =>
-                        `flex items-center px-3 py-2 rounded-md hover:bg-blue-700 transition-colors ${
-                          isActive ? "bg-blue-700" : "text-white"
-                        }`
-                      }
-                      onClick={handleClose} // 👈 close on click
-                    >
-                      <item.icon />
-                      <span className="ml-2 text-base font-medium">
-                        {item.title}
-                      </span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </ul>
-            </nav>
-          ))}
-          <SidebarMenuItem className="relative">
-            <div className="flex-1">
-              <div className="absolute top-60 left-0 right-0 p-4 border-t border-blue-700">
-                <SidebarMenuButton asChild>
-                  <Logout />
-                </SidebarMenuButton>
-              </div>
-            </div>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarContent>
-    </Sidebar>
+    <aside className="h-[100vh] w-64 bg-white rounded-3xl shadow-md p-5 flex flex-col justify-between ml-4">
+      <div className="">
+        {items.map((item) => (
+          <nav className="flex-1 overflow-y-auto py-2" key={item.title}>
+            <ul className="space-y-1">
+              <NavLink
+                to={item.path}
+                className={({ isActive }) =>
+                  `flex items-center px-3 py-2 rounded-md hover:bg-blue-200/20 transition-colors ${
+                    isActive
+                      ? "bg-blue-100 border-r-[3px] border-blue-400"
+                      : "text-[#292933]"
+                  }`
+                }
+                // onClick={handleClose}
+              >
+                <item.icon />
+                <span className="ml-2 text-base font-medium">{item.title}</span>
+              </NavLink>
+            </ul>
+          </nav>
+        ))}
+      </div>
+    </aside>
   );
 }
-export default AppSidebar;
+
+export default Sidebar;

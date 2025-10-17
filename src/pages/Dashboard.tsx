@@ -1,4 +1,3 @@
-import { DashboardHeader } from "@/features/dashboard/DashboardHeader";
 import { PropertyTypeChart } from "@/features/dashboard/PropertyTypeChart";
 // import { RevenueTrendsChart } from "@/features/dashboard/RevenueTrendsChart";
 import { StatsCards } from "@/features/dashboard/StatsCards";
@@ -6,8 +5,7 @@ import { StatsCards } from "@/features/dashboard/StatsCards";
 function Dashboard() {
   return (
     <div className="min-h-screen">
-      <DashboardHeader />
-      <div className="container mx-auto p-6 space-y-6 pt-25">
+      <div className="container mx-auto md:px-6 px-3 p-6 space-y-6 pt-21">
         <StatsCards />
         <div className="w-full max-w mx-auto">
           <PropertyTypeChart />

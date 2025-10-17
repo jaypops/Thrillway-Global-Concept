@@ -1,7 +1,8 @@
 import axios from "axios";
 import { Property } from "./type";
 
-const API_BASE_URL = "https://thrillway-global-concept-backend.onrender.com/api";;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+// const FRONTEND_URL = import.meta.env.VITE_FRONTEND_URL;
 
 export const fetchProperties = async (): Promise<Property[]> => {
   const res = await axios.get(`${API_BASE_URL}/propertys`);

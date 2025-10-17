@@ -13,7 +13,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLoginAccount } from "./useLogin";
-import { loginSchema } from "./loginSchema"; 
+import { loginSchema } from "./loginSchema";
+import { Spinner } from "@/components/ui/spinner";
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
@@ -29,16 +30,15 @@ function LoginForm() {
 
   function onSubmit(data: LoginFormData) {
     const formData = new FormData();
-    formData.append('username', data.username);
-    formData.append('password', data.password);
-    
+    formData.append("username", data.username);
+    formData.append("password", data.password);
+
     loginAccount(formData, {
       onSuccess: () => {
-        form.reset(); 
+        form.reset();
       },
     });
   }
-
 
   return (
     <div className="bg-[#fff] w-full h-[100dvh] flex flex-col justify-center items-center px-4">
@@ -62,6 +62,7 @@ function LoginForm() {
                         disabled={isPending}
                         autoComplete="username"
                         placeholder="username..."
+                        className="focus:ring-2 focus:!ring-blue-600/40 focus:!border-blue-600/40"
                       />
                     </FormControl>
                     <FormMessage />
@@ -81,6 +82,7 @@ function LoginForm() {
                         disabled={isPending}
                         autoComplete="current-password"
                         placeholder="password..."
+                        className="focus:ring-2 focus:!ring-blue-600/40 focus:!border-blue-600/40"
                       />
                     </FormControl>
                     <FormMessage />
@@ -92,7 +94,13 @@ function LoginForm() {
                 className="w-full cursor-pointer"
                 disabled={isPending}
               >
-                {isPending ? "Logging in..." : "Login"}
+                {isPending ? (
+                  <>
+                    <Spinner /> Logging in...
+                  </>
+                ) : (
+                  "Login"
+                )}
               </Button>
             </form>
           </Form>

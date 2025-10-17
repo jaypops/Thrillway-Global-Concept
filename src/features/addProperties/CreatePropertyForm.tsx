@@ -25,7 +25,7 @@ import { PropertyFeatures } from "@/features/addProperties/PropertyFeatures";
 import { usePropertyForm } from "@/features/addProperties/usePropertyForm";
 import { Switch } from "@/components/ui/switch";
 import { Property } from "@/services/type";
-import Loader2 from "@/ui/Loader2";
+import { Spinner } from "@/components/ui/spinner";
 
 interface CreatePropertyFormProps {
   isEditMode?: boolean;
@@ -75,12 +75,12 @@ function CreatePropertyForm({
     <div>
       <Form {...form}>
         <form
-          className="space-y-8"
+          className="space-y-8  "
           onSubmit={form.handleSubmit((data) => {
             onSubmit(data);
           })}
         >
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-6 md:grid-cols-2 ">
             <div className="space-y-6">
               <FormField
                 control={form.control}
@@ -91,7 +91,7 @@ function CreatePropertyForm({
                     <FormControl>
                       <Input
                         disabled={isLoading}
-                        className="text-xs xs:text-lg"
+                        className="text-xs xs:text-lg focus:ring-2 focus:!ring-blue-600/40 focus:!border-blue-600/40"
                         placeholder="Luxury 3-Bedroom Apartment"
                         {...field}
                       />
@@ -112,7 +112,7 @@ function CreatePropertyForm({
                         <Input
                           type="number"
                           disabled={isLoading}
-                          className="text-xs xs:text-lg"
+                          className="text-xs xs:text-lg focus:ring-2 focus:!ring-blue-600/40 focus:!border-blue-600/40"
                           placeholder="250000"
                           {...field}
                         />
@@ -162,7 +162,7 @@ function CreatePropertyForm({
                     <FormControl>
                       <Input
                         placeholder="Lagos..."
-                        className="text-xs xs:text-lg"
+                        className="text-xs xs:text-lg focus:ring-2 focus:!ring-blue-600/40 focus:!border-blue-600/40"
                         disabled={isLoading}
                         {...field}
                       />
@@ -317,7 +317,7 @@ function CreatePropertyForm({
                       <Input
                         type="number"
                         placeholder="120"
-                        className="text-xs xs:text-lg"
+                        className="text-xs xs:text-lg focus:ring-2 focus:!ring-blue-600/40 focus:!border-blue-600/40"
                         disabled={isLoading}
                         {...field}
                       />
@@ -338,7 +338,7 @@ function CreatePropertyForm({
                     <FormControl>
                       <Textarea
                         placeholder="Describe the property..."
-                        className="min-h-[150px] text-xs xs:text-lg"
+                        className="min-h-[150px] text-xs xs:text-lg focus:ring-2 focus:!ring-blue-600/40 focus:!border-blue-600/40"
                         {...field}
                         disabled={isLoading}
                       />
@@ -414,7 +414,7 @@ function CreatePropertyForm({
                     checked={field.value}
                     onCheckedChange={field.onChange}
                     disabled={isLoading}
-                    className="cursor-pointer"
+                    className="cursor-pointer "
                   />
                 </FormControl>
               </FormItem>
@@ -429,7 +429,7 @@ function CreatePropertyForm({
             <Plus className="mr-2 h-4 w-4" />
             {isLoading ? (
               <>
-                <Loader2 />
+                <Spinner />
                 Submitting...
               </>
             ) : isEditMode ? (

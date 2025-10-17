@@ -61,40 +61,22 @@ export function StatsCards() {
 
   return (
     <div>
-      {/* Mobile: swipeable row */}
-      <div className="flex gap-4 overflow-x-auto pb-2 pt-20 md:hidden">
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 ">
         {stats.map((stat, index) => (
-          <Card
-            key={index}
-            className="min-w-[250px] flex-shrink-0"
-          >
+          <Card key={index} className="shadow-md">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-              <div className="p-2 bg-blue-50 rounded-full text-blue-600">
-                <stat.icon className="w-4 h-4" />
+              <CardTitle className="text-xs sm:text-sm font-medium">
+                {stat.title}
+              </CardTitle>
+              <div className="p-1.5 sm:p-2 bg-blue-50 rounded-full text-blue-600">
+                <stat.icon className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-              <p className="text-xs text-muted-foreground">{stat.description}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Desktop: grid layout */}
-      <div className="hidden md:grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat, index) => (
-          <Card key={index}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-              <div className="p-2 bg-blue-50 rounded-full text-blue-600">
-                <stat.icon className="w-4 h-4" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-              <p className="text-xs text-muted-foreground">{stat.description}</p>
+              <div className="text-lg sm:text-2xl font-bold line-clamp-1">{stat.value}</div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">
+                {stat.description}
+              </p>
             </CardContent>
           </Card>
         ))}

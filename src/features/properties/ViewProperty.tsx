@@ -30,11 +30,7 @@ import { useRef, useState } from "react";
 import { Property } from "@/services/type";
 import toast from "react-hot-toast";
 import Loader from "@/ui/Loader";
-
-interface ViewPropertyProps {
-  propertyId: string;
-  onClose: () => void;
-}
+import { useNavigate, useParams } from "react-router-dom";
 
 interface PropertyItem {
   key: string;
@@ -42,10 +38,9 @@ interface PropertyItem {
   icon: IconType;
 }
 
-// Fixed: Properly type the nested property access
 const getNestedProperty = (obj: Property, key: string): any => {
   return key.split(".").reduce((o: any, k: string) => {
-    if (o && typeof o === 'object' && k in o) {
+    if (o && typeof o === "object" && k in o) {
       return o[k];
     }
     return undefined;
@@ -80,7 +75,11 @@ const PropertyList: PropertyItem[] = [
   },
 ];
 
-function ViewProperty({ propertyId, onClose }: ViewPropertyProps) {
+function ViewProperty() {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const propertyId = id!;
+
   const plugin = useRef(Autoplay({ delay: 2000, stopOnInteraction: true }));
   const { data: property, isPending, error } = usePropertyById({ propertyId });
   const [aspectRatios, setAspectRatios] = useState<Record<number, string>>({});
@@ -104,128 +103,128 @@ function ViewProperty({ propertyId, onClose }: ViewPropertyProps) {
   if (!property) return <div className="p-4">Property not found</div>;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center p-4 z-150 w-full h-screen bg-black/40 backdrop-blur-none transition-all duration-500">
-      <div className="p-6 sm:p-12 w-full max-w-6xl h-[100vh] bg-white overflow-y-scroll rounded-lg shadow-lg transition-all duration-500">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">View Property</h2>
-          <button
-            className="text-gray-500 hover:text-gray-700 cursor-pointer"
-            onClick={onClose}
-            aria-label="Close modal"
-          >
-            ✕
-          </button>
-        </div>
-        <div>
-          <Carousel
-            plugins={[plugin.current]}
-            className="w-full max-w-full"
-            onMouseEnter={plugin.current.stop}
-            onMouseLeave={plugin.current.reset}
-          >
-            <CarouselContent>
-              {property.images && property.images.length > 0 ? (
-                property.images.map((image, index) => (
-                  <CarouselItem key={index}>
-                    <CardContent className="p-0">
-                      <div
-                        className={`relative w-full overflow-hidden rounded-lg ${
-                          aspectRatios[index] || "aspect-[20/9]"
-                        }`}
-                      >
+    <div className="fixed inset-0 flex items-center justify-center p-4 z-150 w-full h-screen bg-black/40 backdrop-blur-none transition-all duration-500 ">
+      <div className="py-4">
+        <div className="p-6 sm:p-12 w-full max-w-6xl h-[100vh] bg-white overflow-y-scroll rounded-lg shadow-lg transition-all duration-500">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold">View Property</h2>
+            <button
+              className="text-gray-500 hover:text-gray-700 cursor-pointer"
+              onClick={() => navigate(-1)}
+              aria-label="Close modal"
+            >
+              ✕
+            </button>
+          </div>
+          <div>
+            <Carousel
+              plugins={[plugin.current]}
+              className="w-full max-w-full"
+              onMouseEnter={plugin.current.stop}
+              onMouseLeave={plugin.current.reset}
+            >
+              <CarouselContent>
+                {property.images && property.images.length > 0 ? (
+                  property.images.map((image, index) => (
+                    <CarouselItem key={index}>
+                      <CardContent className="p-0">
+                        <div
+                          className={`relative w-full overflow-hidden rounded-lg ${
+                            aspectRatios[index] || "aspect-[20/9]"
+                          }`}
+                        >
+                          <img
+                            src={image}
+                            alt={`Property image ${index + 1}`}
+                            className="absolute inset-0 w-full h-full object-cover"
+                            onLoad={(e) =>
+                              handleImageLoad(index, e.currentTarget)
+                            }
+                          />
+                        </div>
+                      </CardContent>
+                    </CarouselItem>
+                  ))
+                ) : (
+                  <CarouselItem>
+                    <Card>
+                      <CardContent className="p-0">
                         <img
-                          src={image}
-                          alt={`Property image ${index + 1}`}
-                          className="absolute inset-0 w-full h-full object-cover"
-                          onLoad={(e) =>
-                            handleImageLoad(index, e.currentTarget)
-                          }
+                          src="/placeholder-image.jpg"
+                          alt="Default property image"
+                          className="w-full h-auto object-cover rounded-lg"
                         />
-                      </div>
-                    </CardContent>
+                      </CardContent>
+                    </Card>
                   </CarouselItem>
+                )}
+              </CarouselContent>
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
+            <div className="pb-6">
+              <p className="tracking-normal text-sm/6 pt-6 ">
+                {property.description}
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-4 text-sm">
+              {PropertyList.filter((item) => {
+                const value = getNestedProperty(property, item.key);
+
+                if (item.key.startsWith("features.")) {
+                  return value === true;
+                }
+
+                return value != null && value !== "";
+              }).map((item) => {
+                const value = getNestedProperty(property, item.key);
+                return (
+                  <span
+                    className="border border-transparent rounded-lg flex gap-x-2 p-2 items-center bg-gray-300"
+                    key={item.key}
+                  >
+                    <item.icon className="text-gray-600" />
+                    <h3 className="font-medium">
+                      {item.label}:{" "}
+                      {value != null && value !== ""
+                        ? typeof value === "number"
+                          ? value.toLocaleString()
+                          : typeof value === "boolean"
+                          ? value
+                            ? "Yes"
+                            : "No"
+                          : String(value)
+                        : "N/A"}
+                    </h3>
+                  </span>
+                );
+              })}
+            </div>
+            <div className="pt-6">
+              <h3 className="text-lg font-semibold mb-2">Documents</h3>
+              {property.documents && property.documents.length > 0 ? (
+                property.documents.map((document, index) => (
+                  <div
+                    className="p-2 px-4 border border-transparent rounded-lg flex items-center bg-gray-300 max-w-[50rem] gap-6 text-sm"
+                    key={index}
+                  >
+                    <span>
+                      <FaRegClipboard
+                        className="cursor-pointer text-gray-600 hover:text-gray-800"
+                        onClick={() => {
+                          navigator.clipboard.writeText(document);
+                          toast.success("Document URL copied to clipboard");
+                        }}
+                        aria-label="Copy document URL"
+                      />
+                    </span>
+                    <span className="truncate">{document}</span>
+                  </div>
                 ))
               ) : (
-                <CarouselItem>
-                  <Card>
-                    <CardContent className="p-0">
-                      <img
-                        src="/placeholder-image.jpg"
-                        alt="Default property image"
-                        className="w-full h-auto object-cover rounded-lg"
-                      />
-                    </CardContent>
-                  </Card>
-                </CarouselItem>
+                <span className="text-gray-500">No documents available</span>
               )}
-            </CarouselContent>
-            <CarouselPrevious />
-            <CarouselNext />
-          </Carousel>
-          <div className="pb-6">
-            <p className="tracking-normal text-sm/6 pt-6 ">
-              {property.description}
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-4 text-sm">
-            {PropertyList.filter((item) => {
-              const value = getNestedProperty(property, item.key);
-              
-              // For feature items (nested properties), only show if value is true
-              if (item.key.startsWith("features.")) {
-                return value === true;
-              }
-              
-              // For regular properties, show if value exists and is not empty
-              return value != null && value !== "";
-            }).map((item) => {
-              const value = getNestedProperty(property, item.key);
-              return (
-                <span
-                  className="border border-transparent rounded-lg flex gap-x-2 p-2 items-center bg-gray-300"
-                  key={item.key}
-                >
-                  <item.icon className="text-gray-600" />
-                  <h3 className="font-medium">
-                    {item.label}:{" "}
-                    {value != null && value !== ""
-                      ? typeof value === "number"
-                        ? value.toLocaleString()
-                        : typeof value === "boolean"
-                        ? value
-                          ? "Yes"
-                          : "No"
-                        : String(value) // Ensure it's a string
-                      : "N/A"}
-                  </h3>
-                </span>
-              );
-            })}
-          </div>
-          <div className="pt-6">
-            <h3 className="text-lg font-semibold mb-2">Documents</h3>
-            {property.documents && property.documents.length > 0 ? (
-              property.documents.map((document, index) => (
-                <div
-                  className="p-2 px-4 border border-transparent rounded-lg flex items-center bg-gray-300 max-w-[50rem] gap-6 text-sm"
-                  key={index} // Use index as key since document might not be unique
-                >
-                  <span>
-                    <FaRegClipboard
-                      className="cursor-pointer text-gray-600 hover:text-gray-800"
-                      onClick={() => {
-                        navigator.clipboard.writeText(document);
-                        toast.success("Document URL copied to clipboard");
-                      }}
-                      aria-label="Copy document URL"
-                    />
-                  </span>
-                  <span className="truncate">{document}</span>
-                </div>
-              ))
-            ) : (
-              <span className="text-gray-500">No documents available</span>
-            )}
+            </div>
           </div>
         </div>
       </div>

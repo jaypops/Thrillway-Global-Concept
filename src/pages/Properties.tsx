@@ -10,6 +10,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
+  FilterFn,
 } from "@tanstack/react-table";
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -31,20 +32,32 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import EditProperty from "@/features/properties/EditProperty";
 import { FaRegTrashAlt } from "react-icons/fa";
-import { Property } from "@/services/type";
-import { normalizeProperty, useProperty } from "@/features/useProperty";
-import { useDeleteAllProperty } from "@/features/usePropertyMutation";
-import ViewProperty from "@/features/properties/ViewProperty";
+import { useNavigate, Outlet } from "react-router-dom";
 import DeleteProperty from "@/features/properties/DeleteProperty";
 import Loader from "@/ui/Loader";
+import { Property } from "@/services/type";
+import { normalizeProperty, useProperty } from "@/features/useProperty";
 
-export const getColumns = (
-  onEdit: (property: Property) => void,
-  setDeleteDialogOpen: (open: boolean) => void,
-  setDeleteIds: (ids: string[]) => void,
-  setviewProperty: (id: string | null) => void
+// ✅ Custom filter to search by address or ID
+const globalFilterFn: FilterFn<Property> = (row, columnId, filterValue) => {
+  const search = filterValue.toLowerCase();
+  const address = row.getValue("address") as string;
+  const id = row.getValue("_id") as string;
+  return (
+    address?.toLowerCase().includes(search) ||
+    id?.toLowerCase().includes(search)
+  );
+};
+
+// Define the type for the setSelectedForDelete function
+interface SetSelectedForDelete {
+  (value: { ids: string[]; open: boolean }): void;
+}
+
+const getColumns = (
+  navigate: ReturnType<typeof useNavigate>,
+  setSelectedForDelete: SetSelectedForDelete
 ): ColumnDef<Property>[] => [
   {
     id: "select",
@@ -76,6 +89,14 @@ export const getColumns = (
     ),
   },
   {
+    accessorKey: "_id",
+    header: "ID",
+    cell: ({ row }) => (
+      <div className="font-mono text-xs">{row.getValue("_id")}</div>
+    ),
+    enableHiding: true,
+  },
+  {
     accessorKey: "address",
     header: ({ column }) => (
       <Button
@@ -86,7 +107,9 @@ export const getColumns = (
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ row }) => <div>{row.getValue("address")}</div>,
+    cell: ({ row }) => (
+      <div className="max-w-[200px] truncate">{row.getValue("address")}</div>
+    ),
   },
   {
     accessorKey: "priceType",
@@ -97,7 +120,7 @@ export const getColumns = (
   },
   {
     accessorKey: "propertyType",
-    header: "Price Classification",
+    header: "Property Type",
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("propertyType")}</div>
     ),
@@ -123,10 +146,10 @@ export const getColumns = (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal />
+              <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
+
           <DropdownMenuContent align="end">
             <DropdownMenuItem
               onClick={() => navigator.clipboard.writeText(property._id)}
@@ -134,22 +157,21 @@ export const getColumns = (
               Copy property ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => setviewProperty(property._id)}>
+            <DropdownMenuItem
+              onClick={() => navigate(`/properties/view/${property._id}`)}
+            >
               View details
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={() => {
-                onEdit(property);
-                setviewProperty(null);
-              }}
+              onClick={() => navigate(`/properties/edit/${property._id}`)}
             >
               Edit Property
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={() => {
-                setDeleteIds([property._id]);
-                setDeleteDialogOpen(true);
-              }}
+              onClick={() =>
+                setSelectedForDelete({ ids: [property._id], open: true })
+              }
+              className="cursor-pointer text-red-600"
             >
               Delete Property
             </DropdownMenuItem>
@@ -161,35 +183,26 @@ export const getColumns = (
 ];
 
 function Properties() {
+  const navigate = useNavigate();
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({ _id: false });
   const [rowSelection, setRowSelection] = React.useState({});
+  const [globalFilter, setGlobalFilter] = React.useState("");
+  const [selectedForDelete, setSelectedForDelete] = React.useState<{ ids: string[]; open: boolean }>({
+    ids: [],
+    open: false,
+  });
 
-  const [editingPropertyId, setEditingPropertyId] = React.useState<
-    string | null
-  >(null);
-  const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
-  const [deleteIds, setDeleteIds] = React.useState<string[]>([]);
-  const [viewProperty, setviewProperty] = React.useState<string | null>(null);
-
-  const deleteAllPropertyMutation = useDeleteAllProperty();
   const { isPending, data, error } = useProperty();
+  const columns = React.useMemo(
+    () => getColumns(navigate, setSelectedForDelete),
+    [navigate]
+  );
 
   const table = useReactTable({
-    data,
-    columns: getColumns(
-      (property) => {
-        setEditingPropertyId(property._id);
-        setviewProperty(property._id);
-      },
-      setDeleteDialogOpen,
-      setDeleteIds,
-      setviewProperty
-    ),
+    data: data || [],
+    columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -198,177 +211,154 @@ function Properties() {
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn,
     state: {
       sorting,
       columnFilters,
       columnVisibility,
       rowSelection,
+      globalFilter,
     },
   });
 
-  const handleDeleteSelected = () => {
-    const selectedRows = table.getFilteredSelectedRowModel().rows;
-    const selectedIds = selectedRows.map((row) => row.original._id);
-    if (selectedIds.length > 0) {
-      setDeleteIds(selectedIds);
-      setDeleteDialogOpen(true);
-    }
-  };
-
-  if (isPending)
-    return (
-      <div className="p-4">
-        <Loader />
-      </div>
-    );
-  if (error) {
-    console.error("Error loading properties:", error);
-    return <div className="p-4 text-red-500">Failed to load properties.</div>;
-  }
+  if (isPending) return <div className="p-4"><Loader /></div>;
+  if (error) return <div className="p-4 text-red-500">Failed to load properties.</div>;
 
   return (
-    <div className="w-full p-4">
-      <div className="flex justify-between items-center text-2xl">
-        <h1 className="text-2xl font-bold mb-4">Properties</h1>
-        <Button
-          className="cursor-pointer"
-          variant="ghost"
-          onClick={handleDeleteSelected}
-          disabled={
-            table.getFilteredSelectedRowModel().rows.length === 0 ||
-            deleteAllPropertyMutation.isPending
-          }
-        >
-          <FaRegTrashAlt />
-        </Button>
-      </div>
-      <div className="flex items-center py-4">
-        <Input
-          placeholder="Filter addresses..."
-          value={(table.getColumn("address")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("address")?.setFilterValue(event.target.value)
-          }
-          className="sm:max-w-sm max-w-[210px] text-sm"
-        />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columns <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => (
-                <DropdownMenuCheckboxItem
-                  key={column.id}
-                  className="capitalize"
-                  checked={column.getIsVisible()}
-                  onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                >
-                  {column.id}
-                </DropdownMenuCheckboxItem>
-              ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-      <div className="rounded-md border ">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
+    <div className="w-full px-3 md:px-6 pt-20">
+      <div className="bg-white rounded-3xl shadow-md px-4 md:px-6 py-4">
+        {/* Top Controls */}
+        <div className="md:flex items-center justify-between py-4 gap-2 space-y-2">
+          <Input
+            placeholder="Search by address or ID..."
+            value={globalFilter ?? ""}
+            onChange={(e) => setGlobalFilter(e.target.value)}
+            className="max-w-sm text-xs md:text-sm"
+          />
+
+          <div className="flex items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="text-xs md:text-sm">
+                  Columns <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {table.getAllColumns().filter(c => c.getCanHide()).map(column => (
+                  <DropdownMenuCheckboxItem
+                    key={column.id}
+                    checked={column.getIsVisible()}
+                    onCheckedChange={(v) => column.toggleVisibility(!!v)}
+                    className="capitalize"
+                  >
+                    {column.id}
+                  </DropdownMenuCheckboxItem>
                 ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {table.getFilteredSelectedRowModel().rows.length > 0 && (
+              <Button
+                variant="ghost"
+                onClick={() =>
+                  setSelectedForDelete({
+                    ids: table
+                      .getFilteredSelectedRowModel()
+                      .rows.map((row) => row.original._id),
+                    open: true,
+                  })
+                }
+                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+              >
+                <FaRegTrashAlt className="mr-2 h-4 w-4" />
+                Delete Selected (
+                {table.getFilteredSelectedRowModel().rows.length})
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Table */}
+        <div className="rounded-md">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((hg) => (
+                <TableRow key={hg.id}>
+                  {hg.headers.map((header) => (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(header.column.columnDef.header, header.getContext())}
+                    </TableHead>
                   ))}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={table.getAllColumns().length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-      {deleteDialogOpen && (
-        <DeleteProperty
-          _id={deleteIds.length === 1 ? deleteIds[0] : undefined}
-          ids={deleteIds.length > 1 ? deleteIds : undefined}
-          onClose={() => {
-            setDeleteDialogOpen(false);
-            setDeleteIds([]);
-            setRowSelection({});
-          }}
-        />
-      )}
-      {editingPropertyId && (
-        <EditProperty
-          propertyId={editingPropertyId}
-          onClose={() => setEditingPropertyId(null)}
-          onSuccess={() => setEditingPropertyId(null)}
-        />
-      )}
-      {viewProperty && (
-        <ViewProperty
-          propertyId={viewProperty}
-          onClose={() => setviewProperty(null)}
-        />
-      )}
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
+              ))}
+            </TableHeader>
+
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={columns.length} className="h-24 text-center">
+                    {globalFilter
+                      ? "No properties match your search."
+                      : "No properties found."}
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
         </div>
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
+
+        {/* Pagination */}
+        <div className="flex md:flex-row flex-col items-center justify-between py-4 gap-3">
+          <div className="text-sm text-muted-foreground">
+            {table.getFilteredSelectedRowModel().rows.length} of{" "}
+            {table.getFilteredRowModel().rows.length} selected.
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              Previous
+            </Button>
+            <span className="text-sm text-muted-foreground">
+              Page {table.getState().pagination.pageIndex + 1} of{" "}
+              {table.getPageCount()}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              Next
+            </Button>
+          </div>
         </div>
+
+        {/* Delete Modal */}
+        {selectedForDelete.open && (
+          <DeleteProperty
+            ids={selectedForDelete.ids}
+            onClose={() => setSelectedForDelete({ ids: [], open: false })}
+          />
+        )}
+
+        <Outlet />
       </div>
     </div>
   );

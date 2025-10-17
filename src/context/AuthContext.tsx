@@ -7,8 +7,6 @@ import {
 } from "react";
 import {
   verifyToken,
-  getStoredToken,
-  setAuthToken,
   logout as apiLogout,
 } from "../services/apiAccount";
 import { User } from "@/services/type";
@@ -17,7 +15,7 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean | null;
   isLoading: boolean;
-  login: (userData: User, token: string) => void;
+  login: (userData: User) => void;
   logout: () => void;
   setIsAuthenticated: (value: boolean) => void;
 }
@@ -45,38 +43,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       try {
         setIsLoading(true);
 
-        const storedToken = await getStoredToken();
-        if (!storedToken) {
-          setUser(null);
-          setIsAuthenticated(false);
-          setIsLoading(false);
-          return;
-        }
-
-        setAuthToken(storedToken);
         const isValid = await verifyToken();
 
-        if (isValid && storedToken) {
-          try {
-            const decoded = JSON.parse(atob(storedToken.split(".")[1]));
-            setUser({ id: decoded._id, role: decoded.role });
-            setIsAuthenticated(true);
-          } catch (error) {
-            console.error("Error decoding token:", error);
-            setUser(null);
-            setIsAuthenticated(false);
-            await apiLogout();
-          }
+        if (isValid) {
+         
+          setIsAuthenticated(true);
         } else {
           setUser(null);
           setIsAuthenticated(false);
-          await apiLogout();
         }
       } catch (error) {
         console.error("Error verifying token:", error);
         setUser(null);
         setIsAuthenticated(false);
-        await apiLogout();
       } finally {
         setIsLoading(false);
       }
@@ -85,18 +64,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     checkAuth();
   }, []);
 
-  const login = (userData: User, token: string) => {
+  const login = (userData: User) => { 
     setUser(userData);
     setIsAuthenticated(true);
-    setAuthToken(token);
   };
 
   const logout = async () => {
     setUser(null);
     setIsAuthenticated(false);
-    setAuthToken(null);
     try {
-      await apiLogout();
+      await apiLogout(); 
     } catch (error) {
       console.error("Error during logout:", error);
     }
