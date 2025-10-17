@@ -1,8 +1,17 @@
-import { ChatContextType, Message, Chat } from "@/services/type";
-import React, { useEffect, useState, createContext, useContext } from "react";
+import React, {
+  useEffect,
+  useState,
+  createContext,
+  useContext,
+  ReactNode,
+} from "react";
 import { v4 as uuidv4 } from "uuid";
+import { ChatContextType, Message, Chat } from "@/services/type";
 
+// Create context
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
+
+// Hook for using chat context
 export const useChat = () => {
   const context = useContext(ChatContext);
   if (!context) {
@@ -10,7 +19,8 @@ export const useChat = () => {
   }
   return context;
 };
-// Mock data
+
+// Generate mock chat data
 const generateMockChats = (): Chat[] => {
   const mockChats: Chat[] = [
     {
@@ -23,20 +33,20 @@ const generateMockChats = (): Chat[] => {
       },
       messages: [
         {
-          id: "68bd732c80056ac2f82dc855",
-          content: "Hi there!  is this house still available",
+          id: uuidv4(),
+          content: "Hi there! Is this house still available?",
           sender: "user",
           timestamp: new Date(Date.now() - 3600000),
         },
         {
-          id: "68bd732c80056ac2f82dc855",
-          content: "yes",
+          id: uuidv4(),
+          content: "Yes, it is.",
           sender: "admin",
           timestamp: new Date(Date.now() - 3500000),
         },
         {
-          id: "68bd732c80056ac2f82dc855",
-          content: "okay",
+          id: uuidv4(),
+          content: "Okay, thanks!",
           sender: "user",
           timestamp: new Date(Date.now() - 3400000),
         },
@@ -54,20 +64,20 @@ const generateMockChats = (): Chat[] => {
       },
       messages: [
         {
-          id: "68cac7e808eea59007e79412",
-          content: "Hello, is this office still available",
+          id: uuidv4(),
+          content: "Hello, is this office still available?",
           sender: "user",
           timestamp: new Date(Date.now() - 86400000),
         },
         {
-          id: "68cac7e808eea59007e79412",
-          content: "No, but we have at other locations",
+          id: uuidv4(),
+          content: "No, but we have others at nearby locations.",
           sender: "admin",
           timestamp: new Date(Date.now() - 86300000),
         },
         {
-          id: "68cac7e808eea59007e79412",
-          content: "where?",
+          id: uuidv4(),
+          content: "Where exactly?",
           sender: "user",
           timestamp: new Date(Date.now() - 86200000),
         },
@@ -84,20 +94,20 @@ const generateMockChats = (): Chat[] => {
       },
       messages: [
         {
-          id: "68cac82d08eea59007e79415",
-          content: "Can i get something like this?",
+          id: uuidv4(),
+          content: "Can I get something like this?",
           sender: "user",
           timestamp: new Date(Date.now() - 172800000),
         },
         {
-          id: "68cac82d08eea59007e79415",
-          content: "Yes, what is your budget?",
+          id: uuidv4(),
+          content: "Yes, what’s your budget?",
           sender: "admin",
           timestamp: new Date(Date.now() - 172700000),
         },
         {
-          id: "68cac82d08eea59007e79415",
-          content: "5m",
+          id: uuidv4(),
+          content: "Around 5 million.",
           sender: "user",
           timestamp: new Date(Date.now() - 172600000),
         },
@@ -105,21 +115,27 @@ const generateMockChats = (): Chat[] => {
       unreadCount: 2,
     },
   ];
+
   // Set last message for each chat
   mockChats.forEach((chat) => {
     chat.lastMessage = chat.messages[chat.messages.length - 1];
   });
+
   return mockChats;
 };
-export const ChatProvider: React.FC<{
-  children: React.ReactNode;
-}> = ({ children }) => {
+
+// Provider component
+export const ChatProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [chats, setChats] = useState<Chat[]>(generateMockChats());
   const [activeChat, setActiveChat] = useState<Chat | null>(null);
   const [showSidebar, setShowSidebar] = useState(true);
-  // Check if we're on mobile view
-  const [isMobileView, setIsMobileView] = useState(window.innerWidth < 768);
-  // Handle window resize
+  const [isMobileView, setIsMobileView] = useState(
+    typeof window !== "undefined" && window.innerWidth < 768
+  );
+
+  // Handle window resize for responsiveness
   useEffect(() => {
     const handleResize = () => {
       setIsMobileView(window.innerWidth < 768);
@@ -127,37 +143,45 @@ export const ChatProvider: React.FC<{
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  // Set first chat as active by default
   useEffect(() => {
-    // Set the first chat as active by default
     if (chats.length > 0 && !activeChat) {
       setActiveChat(chats[0]);
     }
   }, [chats, activeChat]);
-  // When a chat is selected on mobile, hide sidebar
+
+  // Handle setting active chat
   const handleSetActiveChat = (chat: Chat | null) => {
     setActiveChat(chat);
     if (isMobileView && chat) {
       setShowSidebar(false);
     }
   };
+
+  // Send message
   const sendMessage = (content: string) => {
     if (!activeChat) return;
+
     const newMessage: Message = {
       id: uuidv4(),
       content,
       sender: "admin",
       timestamp: new Date(),
     };
-    const updatedChat = {
+
+    const updatedChat: Chat = {
       ...activeChat,
       messages: [...activeChat.messages, newMessage],
       lastMessage: newMessage,
     };
+
     setChats((prevChats) =>
       prevChats.map((chat) => (chat.id === activeChat.id ? updatedChat : chat))
     );
     setActiveChat(updatedChat);
-    // Simulate a response after a delay
+
+    // Simulate a delayed user response
     setTimeout(() => {
       const responseMessage: Message = {
         id: uuidv4(),
@@ -165,12 +189,14 @@ export const ChatProvider: React.FC<{
         sender: "user",
         timestamp: new Date(),
       };
-      const updatedChatWithResponse = {
+
+      const updatedChatWithResponse: Chat = {
         ...updatedChat,
         messages: [...updatedChat.messages, responseMessage],
         lastMessage: responseMessage,
         unreadCount: updatedChat.unreadCount + 1,
       };
+
       setChats((prevChats) =>
         prevChats.map((chat) =>
           chat.id === activeChat.id ? updatedChatWithResponse : chat
@@ -179,9 +205,12 @@ export const ChatProvider: React.FC<{
       setActiveChat(updatedChatWithResponse);
     }, 2000);
   };
+
+  // Copy message ID to clipboard
   const copyMessageId = (id: string) => {
     navigator.clipboard.writeText(id);
   };
+
   return (
     <ChatContext.Provider
       value={{
@@ -199,3 +228,6 @@ export const ChatProvider: React.FC<{
     </ChatContext.Provider>
   );
 };
+
+// Re-export types for convenience (optional)
+export type { Message, Chat } from "@/services/type";

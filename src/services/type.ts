@@ -114,6 +114,7 @@ export type Message = {
   sender: "user" | "admin";
   timestamp: Date;
 };
+
 export type Chat = {
   id: string;
   user: {
@@ -127,6 +128,7 @@ export type Chat = {
   unreadCount: number;
   lastMessage?: Message;
 };
+
 export type ChatContextType = {
   chats: Chat[];
   activeChat: Chat | null;

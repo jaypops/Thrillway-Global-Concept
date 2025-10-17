@@ -39,8 +39,7 @@ import Loader from "@/ui/Loader";
 import { Property } from "@/services/type";
 import { normalizeProperty, useProperty } from "@/features/useProperty";
 
-// ✅ Custom filter to search by address or ID
-const globalFilterFn: FilterFn<Property> = (row, columnId, filterValue) => {
+const globalFilterFn: FilterFn<Property> = (row, _columnId, filterValue) => {
   const search = filterValue.toLowerCase();
   const address = row.getValue("address") as string;
   const id = row.getValue("_id") as string;
@@ -50,7 +49,6 @@ const globalFilterFn: FilterFn<Property> = (row, columnId, filterValue) => {
   );
 };
 
-// Define the type for the setSelectedForDelete function
 interface SetSelectedForDelete {
   (value: { ids: string[]; open: boolean }): void;
 }
@@ -228,7 +226,6 @@ function Properties() {
   return (
     <div className="w-full px-3 md:px-6 pt-20">
       <div className="bg-white rounded-3xl shadow-md px-4 md:px-6 py-4">
-        {/* Top Controls */}
         <div className="md:flex items-center justify-between py-4 gap-2 space-y-2">
           <Input
             placeholder="Search by address or ID..."
