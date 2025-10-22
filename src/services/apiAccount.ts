@@ -2,7 +2,8 @@ import { uploadFile } from "./apiProperty";
 import axios from "axios";
 import { Account, LoginResponse } from "./type";
 
-const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
+// const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 type LoginData = Pick<Account, "username" | "password">;
 
