@@ -26,6 +26,7 @@ import { usePropertyForm } from "@/features/addProperties/usePropertyForm";
 import { Switch } from "@/components/ui/switch";
 import { Property } from "@/services/type";
 import { Spinner } from "@/components/ui/spinner";
+import { useNavigate } from "react-router-dom";
 
 interface CreatePropertyFormProps {
   isEditMode?: boolean;
@@ -58,7 +59,7 @@ function CreatePropertyForm({
     initialValues,
     onSuccess,
   });
-
+  const navigate = useNavigate();
   const propertyType = form.watch("propertyType");
   const isNonResidential =
     propertyType &&
@@ -420,24 +421,39 @@ function CreatePropertyForm({
               </FormItem>
             )}
           />
-          <Button
-            type="submit"
-            size="lg"
-            className="w-full md:w-auto cursor-pointer"
-            disabled={isLoading}
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            {isLoading ? (
-              <>
-                <Spinner />
-                Submitting...
-              </>
-            ) : isEditMode ? (
-              "Update Property"
+          <div className="flex items-center space-x-4">
+            <Button
+              type="submit"
+              size="lg"
+              className="w-full md:w-auto cursor-pointer"
+              disabled={isLoading}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              {isLoading ? (
+                <>
+                  <Spinner />
+                  Submitting...
+                </>
+              ) : isEditMode ? (
+                "Update Property"
+              ) : (
+                "Upload Property"
+              )}
+            </Button>
+
+            {isEditMode ? (
+              <Button
+                size="lg"
+                className="w-full md:w-auto cursor-pointer"
+                variant="outline"
+                onClick={() => navigate(-1)}
+              >
+                Cancel
+              </Button>
             ) : (
-              "Upload Property"
+              ""
             )}
-          </Button>
+          </div>
         </form>
       </Form>
     </div>

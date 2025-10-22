@@ -23,17 +23,19 @@ function AccountManagement() {
       <div className="bg-white rounded-3xl shadow-md pt-2">
         <div className="pt-4 md:pl-8  pb-8 flex justify-between items-center ">
           <div className="flex items-center space-x-3">
-            <FaArrowLeft
-              onClick={() => navigate(-1)}
-              className="cursor-pointer"
-            />
+            <span className="pl-3">
+              <FaArrowLeft
+                onClick={() => navigate(-1)}
+                className="cursor-pointer"
+              />
+            </span>
 
             {!isAddingStaff && (
               <Button
                 onClick={() => navigate("add-staff")}
                 variant="outline"
                 size="lg"
-                className="w-full md:w-auto cursor-pointer text-xs"
+                className="w-full md:w-auto cursor-pointer text-xs !px-3"
               >
                 <Plus className="mr-2 h-4 w-4" />
                 Add staff

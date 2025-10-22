@@ -7,19 +7,32 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Logout } from "@/authentication/Logout";
+import { useCurrentUser } from "@/features/useCurrentUser";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function Header() {
+  const { accounts, isPending, error } = useCurrentUser();
+
+  if (isPending)
+    return (
+      <div className="p-4">
+        <Spinner />
+      </div>
+    );
+  if (error)
+    return <div className="p-4 text-red-500">Error: {error.message}</div>;
+
   return (
     <div className="fixed top-0 right- z-20 w-full bg-sky-50 backdrop-blur-sm">
       <div className=" flex flex-row items-center justify-between md:px-6 px-3 py-5">
         <h1>Logo</h1>
         <span className="flex items-center space-x-4">
           <Avatar>
-            <AvatarImage src="https://github.com/shadcn.png" />
+            <AvatarImage src={accounts?.images?.[0]} />
             <AvatarFallback>T</AvatarFallback>
           </Avatar>
           <span className="flex items-center flex-row space-x-2">
-            <p className="text-sm font-medium">Timothy</p>
+            <p className="text-sm font-medium">{accounts?.username}</p>
             <DropdownMenu>
               <DropdownMenuTrigger>
                 {" "}

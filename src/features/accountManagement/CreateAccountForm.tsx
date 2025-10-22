@@ -38,19 +38,16 @@ function CreateAccountForm({
   setShowForm,
   isInvitationFlow = false,
 }: CreateAccountFormProps) {
-  const { setSelectedRole } = useOutletContext<{
-    setSelectedRole: React.Dispatch<
+  const outletContext = useOutletContext<{
+    setSelectedRole?: React.Dispatch<
       React.SetStateAction<"admin" | "fieldAgent" | "customerAgent" | null>
     >;
   }>();
-  const {
-    form,
-    onSubmit,
-    handleImageUpload,
-    isSubmitting,
-    image,
-    removeImg,
-  } = useAccountForm();
+
+  const { setSelectedRole } = outletContext || {};
+
+  const { form, onSubmit, handleImageUpload, isSubmitting, image, removeImg } =
+    useAccountForm();
   const { setRole: setInviteRole } = useInviteLink();
   const [searchParams] = useSearchParams();
 
@@ -62,7 +59,7 @@ function CreateAccountForm({
         | "customerAgent";
       if (role) {
         form.setValue("role", role);
-        setSelectedRole(role);
+        setSelectedRole?.(role);
         if (setInviteRole) {
           setInviteRole(role);
         }
@@ -73,7 +70,7 @@ function CreateAccountForm({
   const handleRoleChange = (value: string) => {
     const roleValue = value as "admin" | "fieldAgent" | "customerAgent";
     form.setValue("role", roleValue);
-    setSelectedRole(roleValue);
+    setSelectedRole?.(roleValue);
     if (isInvitationFlow && setInviteRole) {
       setInviteRole(roleValue);
     }
@@ -109,7 +106,7 @@ function CreateAccountForm({
                     <Input
                       placeholder="Enter your full name"
                       className="text-xs xs:text-lg focus:ring-2 focus:!ring-blue-600/40 focus:!border-blue-600/40"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || !isInvitationFlow}
                       {...field}
                     />
                   </FormControl>
@@ -127,7 +124,7 @@ function CreateAccountForm({
                     <Input
                       placeholder="Choose a username"
                       className="text-xs xs:text-lg focus:ring-2 focus:!ring-blue-600/40 focus:!border-blue-600/40"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || !isInvitationFlow}
                       {...field}
                     />
                   </FormControl>
@@ -146,7 +143,7 @@ function CreateAccountForm({
                       type="tel"
                       placeholder="Enter your phone number"
                       className="text-xs xs:text-lg focus:ring-2 focus:!ring-blue-600/40 focus:!border-blue-600/40"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || !isInvitationFlow}
                       {...field}
                     />
                   </FormControl>
@@ -163,7 +160,7 @@ function CreateAccountForm({
                   <FormControl>
                     <Input
                       type="tel"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || !isInvitationFlow}
                       placeholder="Enter emergency contact number"
                       className="text-xs xs:text-lg focus:ring-2 focus:!ring-blue-600/40 focus:!border-blue-600/40"
                       {...field}
@@ -182,7 +179,7 @@ function CreateAccountForm({
                   <FormControl>
                     <Input
                       type="email"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || !isInvitationFlow}
                       placeholder="Enter your email address"
                       className="text-xs xs:text-lg focus:ring-2 focus:!ring-blue-600/40 focus:!border-blue-600/40"
                       {...field}
@@ -202,7 +199,7 @@ function CreateAccountForm({
                     <Input
                       placeholder="Enter your address"
                       className="text-xs xs:text-lg focus:ring-2 focus:!ring-blue-600/40 focus:!border-blue-600/40"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || !isInvitationFlow}
                       {...field}
                     />
                   </FormControl>
@@ -221,7 +218,7 @@ function CreateAccountForm({
                       type="password"
                       placeholder="Enter your password"
                       className="text-xs xs:text-lg focus:ring-2 focus:!ring-blue-600/40 focus:!border-blue-600/40"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || !isInvitationFlow}
                       {...field}
                     />
                   </FormControl>
@@ -240,7 +237,7 @@ function CreateAccountForm({
                       <FormControl>
                         <Button
                           variant="outline"
-                          disabled={isSubmitting}
+                          disabled={isSubmitting || !isInvitationFlow}
                           className={`w-full pl-3 text-left font-normal text-xs xs:text-lg ${
                             !field.value ? "text-muted-foreground" : ""
                           }`}
@@ -277,7 +274,7 @@ function CreateAccountForm({
                   <FormControl>
                     <Input
                       type="file"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || !isInvitationFlow}
                       className="text-xs xs:text-lg focus:ring-2 focus:!ring-blue-600/40 focus:!border-blue-600/40"
                       accept="image/*"
                       onChange={(e) => {
@@ -352,20 +349,23 @@ function CreateAccountForm({
               )}
             />
           </div>
-          <Button
-            type="submit"
-            className="w-full md:w-auto cursor-pointer"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <>
-                <Spinner />
-                Submitting...
-              </>
-            ) : (
-              "Submit Registration"
-            )}
-          </Button>
+
+          {isInvitationFlow && (
+            <Button
+              type="submit"
+              className="w-full md:w-auto cursor-pointer"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <Spinner />
+                  Submitting...
+                </>
+              ) : (
+                "Submit Registration"
+              )}
+            </Button>
+          )}
         </form>
       </Form>
     </div>

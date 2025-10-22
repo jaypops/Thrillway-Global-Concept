@@ -1,6 +1,5 @@
 import { Outlet } from "react-router-dom";
 import { Sidebar } from "./Sidebar";
-import { Toaster } from "react-hot-toast";
 import Header from "./Header";
 import BottomNavbar from "./BottomNavbar";
 
@@ -15,7 +14,6 @@ function AppLayout() {
         </div>
 
         <main className="ml-0 md:ml-60 flex-1 overflow-y-auto pl-0 md:pl-6 pb-15 md:pb-0">
-          <Toaster position="top-center" />
           <Outlet />
         </main>
       </div>

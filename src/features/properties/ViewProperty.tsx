@@ -19,6 +19,7 @@ import { usePropertyById } from "../usePropertyById";
 import Autoplay from "embla-carousel-autoplay";
 import { IconType } from "react-icons";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
   Carousel,
   CarouselContent,
@@ -26,7 +27,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Property } from "@/services/type";
 import toast from "react-hot-toast";
 import Loader from "@/ui/Loader";
@@ -79,10 +80,16 @@ function ViewProperty() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const propertyId = id!;
-
   const plugin = useRef(Autoplay({ delay: 2000, stopOnInteraction: true }));
   const { data: property, isPending, error } = usePropertyById({ propertyId });
   const [aspectRatios, setAspectRatios] = useState<Record<number, string>>({});
+
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
 
   const handleImageLoad = (index: number, img: HTMLImageElement) => {
     const aspectRatio = img.naturalWidth / img.naturalHeight;
@@ -103,128 +110,138 @@ function ViewProperty() {
   if (!property) return <div className="p-4">Property not found</div>;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center p-4 z-150 w-full h-screen bg-black/40 backdrop-blur-none transition-all duration-500 ">
-      <div className="py-4">
-        <div className="p-6 sm:p-12 w-full max-w-6xl h-[100vh] bg-white overflow-y-scroll rounded-lg shadow-lg transition-all duration-500">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold">View Property</h2>
-            <button
-              className="text-gray-500 hover:text-gray-700 cursor-pointer"
-              onClick={() => navigate(-1)}
-              aria-label="Close modal"
-            >
-              ✕
-            </button>
-          </div>
-          <div>
-            <Carousel
-              plugins={[plugin.current]}
-              className="w-full max-w-full"
-              onMouseEnter={plugin.current.stop}
-              onMouseLeave={plugin.current.reset}
-            >
-              <CarouselContent>
-                {property.images && property.images.length > 0 ? (
-                  property.images.map((image, index) => (
-                    <CarouselItem key={index}>
-                      <CardContent className="p-0">
-                        <div
-                          className={`relative w-full overflow-hidden rounded-lg ${
-                            aspectRatios[index] || "aspect-[20/9]"
-                          }`}
-                        >
-                          <img
-                            src={image}
-                            alt={`Property image ${index + 1}`}
-                            className="absolute inset-0 w-full h-full object-cover"
-                            onLoad={(e) =>
-                              handleImageLoad(index, e.currentTarget)
-                            }
-                          />
-                        </div>
-                      </CardContent>
-                    </CarouselItem>
-                  ))
-                ) : (
-                  <CarouselItem>
-                    <Card>
-                      <CardContent className="p-0">
+    <div className="fixed inset-0 flex items-center justify-center p-2 sm:p-4 z-50 w-full bg-black/40 backdrop-blur-sm overflow-y-auto touch-pan-y">
+      <div className="w-full max-w-6xl bg-white rounded-lg shadow-lg sm:max-h-[100-screen] my-auto transition-all duration-500">
+        <div className="flex justify-between items-center border-b p-4 sm:p-6 ">
+          <h2 className="text-lg sm:text-xl font-bold">View Property</h2>
+          <button
+            className="text-gray-500 hover:text-gray-700 text-xl"
+            onClick={() => navigate(-1)}
+            aria-label="Close modal"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div className="p-4 sm:p-8 space-y-6">
+          <Carousel
+            plugins={[plugin.current]}
+            className="w-full"
+            onMouseEnter={plugin.current.stop}
+            onMouseLeave={plugin.current.reset}
+          >
+            <CarouselContent>
+              {property.images && property.images.length > 0 ? (
+                property.images.map((image, index) => (
+                  <CarouselItem key={index}>
+                    <CardContent className="p-0">
+                      <div
+                        className={`relative w-full overflow-hidden rounded-lg ${
+                          aspectRatios[index] || "aspect-[20/9]"
+                        }`}
+                      >
                         <img
-                          src="/placeholder-image.jpg"
-                          alt="Default property image"
-                          className="w-full h-auto object-cover rounded-lg"
+                          src={image}
+                          alt={`Property image ${index + 1}`}
+                          className="absolute inset-0 w-full h-full object-cover"
+                          onLoad={(e) =>
+                            handleImageLoad(index, e.currentTarget)
+                          }
                         />
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </CardContent>
                   </CarouselItem>
-                )}
-              </CarouselContent>
-              <CarouselPrevious />
-              <CarouselNext />
-            </Carousel>
-            <div className="pb-6">
-              <p className="tracking-normal text-sm/6 pt-6 ">
-                {property.description}
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-4 text-sm">
-              {PropertyList.filter((item) => {
-                const value = getNestedProperty(property, item.key);
-
-                if (item.key.startsWith("features.")) {
-                  return value === true;
-                }
-
-                return value != null && value !== "";
-              }).map((item) => {
-                const value = getNestedProperty(property, item.key);
-                return (
-                  <span
-                    className="border border-transparent rounded-lg flex gap-x-2 p-2 items-center bg-gray-300"
-                    key={item.key}
-                  >
-                    <item.icon className="text-gray-600" />
-                    <h3 className="font-medium">
-                      {item.label}:{" "}
-                      {value != null && value !== ""
-                        ? typeof value === "number"
-                          ? value.toLocaleString()
-                          : typeof value === "boolean"
-                          ? value
-                            ? "Yes"
-                            : "No"
-                          : String(value)
-                        : "N/A"}
-                    </h3>
-                  </span>
-                );
-              })}
-            </div>
-            <div className="pt-6">
-              <h3 className="text-lg font-semibold mb-2">Documents</h3>
-              {property.documents && property.documents.length > 0 ? (
-                property.documents.map((document, index) => (
-                  <div
-                    className="p-2 px-4 border border-transparent rounded-lg flex items-center bg-gray-300 max-w-[50rem] gap-6 text-sm"
-                    key={index}
-                  >
-                    <span>
-                      <FaRegClipboard
-                        className="cursor-pointer text-gray-600 hover:text-gray-800"
-                        onClick={() => {
-                          navigator.clipboard.writeText(document);
-                          toast.success("Document URL copied to clipboard");
-                        }}
-                        aria-label="Copy document URL"
-                      />
-                    </span>
-                    <span className="truncate">{document}</span>
-                  </div>
                 ))
               ) : (
-                <span className="text-gray-500">No documents available</span>
+                <CarouselItem>
+                  <Card>
+                    <CardContent className="p-0">
+                      <img
+                        src="/placeholder-image.jpg"
+                        alt="Default property image"
+                        className="w-full h-auto object-cover rounded-lg"
+                      />
+                    </CardContent>
+                  </Card>
+                </CarouselItem>
               )}
-            </div>
+            </CarouselContent>
+            <CarouselPrevious />
+            <CarouselNext />
+          </Carousel>
+
+          <div>
+            <p className="text-sm sm:text-base leading-relaxed text-gray-700">
+              {property.description}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {PropertyList.filter((item) => {
+              const value = getNestedProperty(property, item.key);
+              if (item.key.startsWith("features.")) return value === true;
+              return value != null && value !== "";
+            }).map((item) => {
+              const value = getNestedProperty(property, item.key);
+              return (
+                <div
+                  className="flex items-center gap-2 bg-gray-100 rounded-lg p-3 text-sm sm:text-base"
+                  key={item.key}
+                >
+                  <item.icon className="text-gray-600" />
+                  <span className="font-medium text-gray-800">
+                    {item.label}:{" "}
+                    {value != null && value !== ""
+                      ? typeof value === "number"
+                        ? value.toLocaleString()
+                        : typeof value === "boolean"
+                        ? value
+                          ? "Yes"
+                          : "No"
+                        : String(value)
+                      : "N/A"}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Documents */}
+          <div>
+            <h3 className="text-base sm:text-lg font-semibold mb-3">
+              Documents
+            </h3>
+            {property.documents && property.documents.length > 0 ? (
+              <div className="flex flex-col gap-2">
+                {property.documents.map((document, index) => (
+                  <div
+                    className="flex items-center gap-3 bg-gray-100 p-2 sm:p-3 rounded-lg text-xs sm:text-sm overflow-hidden"
+                    key={index}
+                  >
+                    <FaRegClipboard
+                      className="cursor-pointer text-gray-600 hover:text-gray-800 flex-shrink-0"
+                      onClick={() => {
+                        navigator.clipboard.writeText(document);
+                        toast.success("Document URL copied to clipboard");
+                      }}
+                      aria-label="Copy document URL"
+                    />
+                    <span className="truncate text-gray-700">{document}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <span className="text-gray-500 text-sm">
+                No documents available
+              </span>
+            )}
+          </div>
+
+          {/* Footer */}
+          <div className="flex justify-end">
+            <Button variant="outline" onClick={() => navigate(-1)}>
+              Cancel
+            </Button>
           </div>
         </div>
       </div>

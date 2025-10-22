@@ -39,23 +39,29 @@ export type Account = {
   email: string;
   address: string;
   password?: string;
-  images?: string[];
+  images?: string[] 
   role: string;
   startDate: string;
   invitationToken?: string;
 };
 
-//Login
+export interface User {
+  id: string;
+  role: "admin" | "fieldAgent" | "customerAgent";
+  name: string;
+  username: string;
+  telephone: string;
+  emergencyContact: string;
+  email: string;
+  address: string;
+  startDate: string;
+  images?: string[];
+}
 
 export interface LoginResponse {
   success: boolean;
   message: string;
   account: Account;
-}
-
-export interface User {
-  id: string;
-  role: "admin" | "fieldAgent" | "customerAgent";
 }
 
 //Dashboard

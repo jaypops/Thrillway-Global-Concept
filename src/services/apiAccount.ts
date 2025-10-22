@@ -2,22 +2,46 @@ import { uploadFile } from "./apiProperty";
 import axios from "axios";
 import { Account, LoginResponse } from "./type";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-// const FRONTEND_URL = import.meta.env.VITE_FRONTEND_URL;
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
 type LoginData = Pick<Account, "username" | "password">;
 
+const handleAxiosError = (error: unknown, defaultMessage: string) => {
+  if (axios.isAxiosError(error)) {
+    const status = error.response?.status;
+    const errorMessage = error.response?.data?.message || defaultMessage;
+
+    if (status === 429) {
+      return new Error(
+        errorMessage || "Too many requests, please try again later"
+      );
+    }
+
+    return new Error(errorMessage);
+  }
+  console.error(`${defaultMessage}:`, error);
+  return new Error("An unexpected error occurred");
+};
+
 export const fetchStaffDetails = async (): Promise<Account[]> => {
   try {
-    console.log("🔄 Fetching staff details...");
-    const res = await axios.get(`${API_BASE_URL}/account`, {
+    const res = await axios.get(`${API_BASE_URL}/account/all`, {
       withCredentials: true,
     });
-
+    
     const data = res.data;
-    return Array.isArray(data) ? data : data.accounts || [];
+    if (data?.success && data.user) {
+      return [data.user]; 
+    }
+    
+    if (data?.success && Array.isArray(data.accounts)) {
+      return data.accounts;
+    }
+    return [];
   } catch (error) {
-    console.error("❌ Fetch staff details failed:", error);
+    if (axios.isAxiosError(error) && error.response?.status === 403) {
+      console.log("🔒 User is not admin, cannot fetch all accounts");
+    }
     throw error;
   }
 };
@@ -63,13 +87,7 @@ export async function createAccount(formData: FormData): Promise<Account> {
 
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      const errorMessage =
-        error.response?.data?.message || "Failed to create account";
-      throw new Error(errorMessage);
-    }
-    console.error("Account creation failed:", error);
-    throw new Error("An unexpected error occurred");
+    throw handleAxiosError(error, "Failed to create account");
   }
 }
 
@@ -78,10 +96,14 @@ export const deleteAccount = async ({
 }: {
   id: string;
 }): Promise<Account> => {
-  const res = await axios.delete(`${API_BASE_URL}/account/${id}`, {
-    withCredentials: true,
-  });
-  return res.data;
+  try {
+    const res = await axios.delete(`${API_BASE_URL}/account/${id}`, {
+      withCredentials: true,
+    });
+    return res.data;
+  } catch (error) {
+    throw handleAxiosError(error, "Failed to delete account");
+  }
 };
 
 export const loginAccount = async (
@@ -104,12 +126,7 @@ export const loginAccount = async (
 
     return { account: response.data.account };
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      const errorMessage =
-        error.response?.data?.message || "Invalid username or password.";
-      throw new Error(errorMessage);
-    }
-    throw new Error("An unexpected error occurred");
+    throw handleAxiosError(error, "Invalid username or password");
   }
 };
 
@@ -129,12 +146,7 @@ export const generateInviteLink = async ({
     );
     return response.data.invitationLink;
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      const errorMessage =
-        error.response?.data?.message || "Failed to generate invite link";
-      throw new Error(errorMessage);
-    }
-    throw new Error("An unexpected error occurred");
+    throw handleAxiosError(error, "Failed to generate invite link");
   }
 };
 
@@ -150,18 +162,7 @@ export const validateInvitationToken = async (token: string) => {
     console.log("Validate invitation response:", response.data);
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      const errorMessage =
-        error.response?.data?.message || "Invalid invitation token";
-      console.error("Invitation token validation failed:", {
-        message: errorMessage,
-        status: error.response?.status,
-        data: error.response?.data,
-      });
-      throw new Error(errorMessage);
-    }
-    console.error("Unexpected error during token validation:", error);
-    throw new Error("An unexpected error occurred");
+    throw handleAxiosError(error, "Invalid invitation token");
   }
 };
 
@@ -184,5 +185,31 @@ export const logout = async (): Promise<void> => {
     });
   } catch (error) {
     console.error("Logout error:", error);
+    throw handleAxiosError(error, "Failed to logout");
+  }
+};
+
+export const getCurrentUser = async (): Promise<Account> => {
+  try {
+    const response = await axios.get<{ user: Account }>(
+      `${API_BASE_URL}/account/current`,
+      {
+        withCredentials: true,
+      }
+    );
+    return response.data.user;
+  } catch (error) {
+    throw handleAxiosError(error, "Failed to fetch current user");
+  }
+};
+
+export const refreshToken = async (): Promise<void> => {
+  try {
+    await axios.post(`${API_BASE_URL}/account/refresh-token`, null, {
+      headers: { "Content-Type": "application/json" },
+      withCredentials: true,
+    });
+  } catch (error) {
+    throw handleAxiosError(error, "Failed to refresh token");
   }
 };

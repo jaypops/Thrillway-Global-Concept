@@ -4,12 +4,13 @@ import { useQuery } from "@tanstack/react-query";
 
 export function useAccount() {
   const {
-    data: accounts,
+    data = [],
     isPending,
     error,
   } = useQuery<Account[]>({
     queryKey: ["accounts"],
     queryFn: fetchStaffDetails,
   });
-  return { isPending, accounts, error };
+
+  return { isPending, data, error };
 }
