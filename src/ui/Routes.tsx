@@ -16,6 +16,7 @@ import ProtectedRoutes from "./ProtectedRoutes";
 import { ReactNode } from "react";
 import Messages from "@/pages/Messages";
 import CreateAccountForm from "@/features/accountManagement/CreateAccountForm";
+import PageNotFound from "@/pages/PageNoteFound";
 
 interface FieldAgentRouteProps {
   children: ReactNode;
@@ -145,7 +146,7 @@ export default function AnimatedRoutes() {
             }
           />
         </Route>
-
+        <Route path="*" element={<PageNotFound />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </AnimatePresence>
