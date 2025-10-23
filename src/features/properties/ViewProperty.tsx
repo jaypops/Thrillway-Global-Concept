@@ -110,8 +110,8 @@ function ViewProperty() {
   if (!property) return <div className="p-4">Property not found</div>;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center p-2 sm:p-4 z-50 w-full bg-black/40 backdrop-blur-sm overflow-y-auto touch-pan-y">
-      <div className="w-full max-w-6xl bg-white rounded-lg shadow-lg sm:max-h-[100-screen] my-auto transition-all duration-500">
+    <div className="fixed inset-0 flex items-center justify-center p-2 sm:p-4 pb-13 z-50 w-full bg-black/40 backdrop-blur-sm overflow-y-auto touch-pan-y">
+      <div className="w-full max-w-6xl bg-white rounded-lg shadow-lg max-h-[200%] my-auto transition-all duration-500">
         <div className="flex justify-between items-center border-b p-4 sm:p-6 ">
           <h2 className="text-lg sm:text-xl font-bold">View Property</h2>
           <button
@@ -166,8 +166,12 @@ function ViewProperty() {
                 </CarouselItem>
               )}
             </CarouselContent>
-            <CarouselPrevious />
-            <CarouselNext />
+            <span >
+              <CarouselPrevious className="hidden md:block " />
+            </span>
+            <span>
+              <CarouselNext className="hidden md:block" />
+            </span>
           </Carousel>
 
           <div>
@@ -206,7 +210,6 @@ function ViewProperty() {
             })}
           </div>
 
-          {/* Documents */}
           <div>
             <h3 className="text-base sm:text-lg font-semibold mb-3">
               Documents
@@ -237,7 +240,6 @@ function ViewProperty() {
             )}
           </div>
 
-          {/* Footer */}
           <div className="flex justify-end">
             <Button variant="outline" onClick={() => navigate(-1)}>
               Cancel

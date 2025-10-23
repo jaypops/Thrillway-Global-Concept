@@ -25,15 +25,16 @@ function DeleteAccount({ _id, onClose }: DeletePropertyProps) {
   };
   return (
     <div className="fixed inset-0 flex items-center justify-center p-4 z-50 w-full h-screen bg-black/40 backdrop-blur-none transition-all duration-500">
-      <div className="w-full max-w-[35rem] h-[20vh] bg-white rounded-lg shadow-lg p-6 transition-all duration-500">
+      <div className="bg-white w-full max-w-md rounded-lg shadow-lg p-6 transition-all duration-500">
         <div className="space-y-2 flex flex-col justify-between h-full">
-          <p className="font-semibold">Are you absolutely sure?</p>
-          <h3 className="text-[13px] sm:pl-2">
+          <p className="font-semibold text-lg">Are you absolutely sure?</p>
+          <h3 className="text-sm text-gray-600 mt-2">
             This action cannot be undone. This will permanently delete this
             staff from the server.
           </h3>
-          <div className="flex gap-4 flex-row-reverse space-y-4">
+          <div className="flex gap-4 flex-row-reverse mt-6">
             <Button
+              variant="destructive"
               className="cursor-pointer"
               disabled={isDeleting}
               onClick={handleDelete}

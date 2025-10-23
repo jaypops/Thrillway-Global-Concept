@@ -34,8 +34,7 @@ function AccountManagement() {
               <Button
                 onClick={() => navigate("add-staff")}
                 variant="outline"
-                size="lg"
-                className="w-full md:w-auto cursor-pointer text-xs !px-3"
+                className="md:px-4 md:py-3  cursor-pointer text-xs"
               >
                 <Plus className="mr-2 h-4 w-4" />
                 Add staff
@@ -48,8 +47,7 @@ function AccountManagement() {
               onClick={() => setShowInviteModal(!showInviteModal)}
               disabled={!selectedRole}
               variant="default"
-              size="lg"
-              className="w-full md:w-auto cursor-pointer text-primary-foreground text-xs"
+              className=" cursor-pointer text-primary-foreground text-xs md:px-4 md:py-3"
             >
               <UserPlus className="mr-2 h-4 w-4" />
               Invite Staff

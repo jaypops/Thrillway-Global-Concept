@@ -106,7 +106,7 @@ export const FileUploader = ({
                     variant="ghost"
                     size="icon"
                     onClick={() => onRemove(index)}
-                    className="absolute top-1 right-1 bg-black/70 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80"
+                    className="absolute top-1 right-1 bg-black/70 text-white hover:text-white/70 p-1 rounded-full opacity-100 transition-opacity hover:bg-black/80 cursor-pointer"
                   >
                     <X className="h-4 w-4" />
                   </Button>

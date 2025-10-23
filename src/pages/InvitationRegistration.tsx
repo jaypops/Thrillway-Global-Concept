@@ -51,7 +51,7 @@ export default function InvitationRegistration() {
       <div className="min-h-screen flex items-center justify-center">
         <Card className="w-[400px]">
           <CardContent className="pt-6">
-            <div className="flex items-center justify-center">
+            <div className="flex items-center justify-center space-x-4">
               <Loader />
               <span className="ml-2">Validating invitation...</span>
             </div>

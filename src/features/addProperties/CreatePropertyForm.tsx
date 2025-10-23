@@ -421,11 +421,11 @@ function CreatePropertyForm({
               </FormItem>
             )}
           />
-          <div className="flex items-center space-x-4">
+          <div className="flex flex-row items-center space-x-4">
             <Button
               type="submit"
               size="lg"
-              className="w-full md:w-auto cursor-pointer"
+              className=" cursor-pointer"
               disabled={isLoading}
             >
               <Plus className="mr-2 h-4 w-4" />
@@ -443,9 +443,11 @@ function CreatePropertyForm({
 
             {isEditMode ? (
               <Button
+                type="button"
                 size="lg"
-                className="w-full md:w-auto cursor-pointer"
+                className="px-10 cursor-pointer"
                 variant="outline"
+                disabled={isLoading}
                 onClick={() => navigate(-1)}
               >
                 Cancel
