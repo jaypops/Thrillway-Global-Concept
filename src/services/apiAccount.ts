@@ -76,7 +76,7 @@ export async function createAccount(formData: FormData): Promise<Account> {
     }
 
     const response = await axios.post<Account>(
-      `${API_BASE_URL}/account/register`,
+      `${API_BASE_URL}/account`,
       accountData,
       {
         headers: {
