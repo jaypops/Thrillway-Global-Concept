@@ -9,12 +9,21 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLoginAccount } from "./useLogin";
 import { loginSchema } from "./loginSchema";
 import { Spinner } from "@/components/ui/spinner";
+import { KeyRound } from "lucide-react";
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
@@ -40,8 +49,79 @@ function LoginForm() {
     });
   }
 
+  const handleCredentialSelect = (username: string, password: string) => {
+    form.setValue("username", username);
+    form.setValue("password", password);
+  };
+
   return (
-    <div className="bg-[#fff] w-full h-[100dvh] flex flex-col justify-center items-center px-4">
+    <div className="bg-[#fff] w-full h-[100dvh] flex flex-col justify-center items-center px-4 relative">
+      {/* Credentials Dropdown - Top Left */}
+      <div className="absolute top-4 left-4">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className="gap-2">
+              <KeyRound className="h-4 w-4" />
+              Test Credentials
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-56">
+            <DropdownMenuLabel>Select Test Account</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem
+              onClick={() => handleCredentialSelect("", "")}
+              className="cursor-pointer"
+            >
+              <div className="flex flex-col gap-1">
+                <span className="font-semibold text-sm">Admin Account</span>
+                <span className="text-xs text-muted-foreground">
+                  Username: admin
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  Password: admin
+                </span>
+              </div>
+            </DropdownMenuItem>
+
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem
+              onClick={() => handleCredentialSelect("", "")}
+              className="cursor-pointer"
+            >
+              <div className="flex flex-col gap-1">
+                <span className="font-semibold text-sm">Field Agent</span>
+                <span className="text-xs text-muted-foreground">
+                  Username: FieldAgent
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  Password: FieldAgent
+                </span>
+              </div>
+            </DropdownMenuItem>
+
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem
+              onClick={() => handleCredentialSelect("", "")}
+              className="cursor-pointer"
+            >
+              <div className="flex flex-col gap-1">
+                <span className="font-semibold text-sm">Customer Agent</span>
+                <span className="text-xs text-muted-foreground">
+                  Username: CustomerAgent
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  Password: CustomerAgent
+                </span>
+              </div>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      {/* Login Form */}
       <span className="py-4 flex flex-col justify-center items-center">
         <h1>LOGO</h1>
         <p className="font-semibold">Log in to your account</p>
