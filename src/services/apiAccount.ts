@@ -2,8 +2,8 @@ import { uploadFile } from "./apiProperty";
 import axios from "axios";
 import { Account, LoginResponse } from "./type";
 
-// const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
+// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 type LoginData = Pick<Account, "username" | "password">;
 
@@ -76,7 +76,7 @@ export async function createAccount(formData: FormData): Promise<Account> {
     }
 
     const response = await axios.post<Account>(
-      `${API_BASE_URL}/account/register`,
+      `${API_BASE_URL}/account`,
       accountData,
       {
         headers: {
@@ -198,6 +198,7 @@ export const getCurrentUser = async (): Promise<Account> => {
         withCredentials: true,
       }
     );
+
     return response.data.user;
   } catch (error) {
     throw handleAxiosError(error, "Failed to fetch current user");
