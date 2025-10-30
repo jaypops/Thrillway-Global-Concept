@@ -7,6 +7,7 @@ import {
 import { BiMessageSquareDetail } from "react-icons/bi";
 import { NavLink } from "react-router-dom";
 import { IconType } from "react-icons";
+import { useAuth } from "@/context/AuthContext";
 
 interface MenuItem {
   icon: IconType;
@@ -23,10 +24,15 @@ const items: MenuItem[] = [
 ];
 
 export default function BottomNavbar() {
+  const { user } = useAuth();
+  const filteredItems =
+    user?.role === "admin"
+      ? items
+      : items.filter((item) => item.icon !== MdAccountCircle);
   return (
     <footer className="fixed bottom-0 left-0 w-full  bg-white/80 backdrop-blur-lg border-t border-gray-200 dark:bg-gray-900/80 dark:border-gray-700 z-50 shadow-[0_-4px_12px_rgba(0,0,0,0.1)] rounded-t-2xl pb-[env(safe-area-inset-bottom)]">
       <div className="flex justify-around items-center py-3 px-4">
-        {items.map((item) => (
+        {filteredItems.map((item) => (
           <NavLink
             key={item.id}
             to={item.path}
