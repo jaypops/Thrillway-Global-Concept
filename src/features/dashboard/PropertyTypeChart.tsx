@@ -53,46 +53,44 @@ export function PropertyTypeChart() {
   }
 
   return (
-    <Card className="p-1 sm:p-0 shadow-md">
-      <div className="pt-6">
-        <CardHeader className="space-y-1 sm:space-y-2">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 ">
-            <CardTitle className="text-base sm:text-lg">
-              Property Distribution
-            </CardTitle>
-            <div>
-              <FilterData />
-            </div>
+    <Card className="shadow-md">
+      <CardHeader className="space-y-1 sm:space-y-2 pb-2">
+        <div className="flex flex-row items-center justify-between">
+          <CardTitle className="text-base sm:text-lg max-w-[100px] sm:max-w-full">
+            Property Distribution
+          </CardTitle>
+          <div>
+            <FilterData />
           </div>
-          <CardDescription className="text-xs sm:text-sm">
-            Number of properties by type
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-2 sm:p-4">
-          <ChartContainer
-            config={chartConfig}
-            className="min-h-[280px] sm:min-h-[300px] w-full"
+        </div>
+        <CardDescription className="text-xs sm:text-sm">
+          Number of properties by type
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="p-0 sm:p-4 pt-0">
+        <ChartContainer
+          config={chartConfig}
+          className="min-h-[240px] sm:min-h-[300px] w-full"
+        >
+          <BarChart
+            data={chartData}
+            margin={{ top: 5, right: 10, left: -10, bottom: 0 }}
           >
-            <BarChart
-              data={chartData}
-              margin={{ top: 10, right: 0, left: 0, bottom: 3 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis
-                dataKey="type"
-                angle={-45}
-                textAnchor="end"
-                height={70}
-                fontSize={10}
-                interval={0}
-              />
-              <YAxis fontSize={10} />
-              <ChartTooltip content={<ChartTooltipContent />} />
-              <Bar dataKey="count" fill="#3B82F6" radius={8} />
-            </BarChart>
-          </ChartContainer>
-        </CardContent>
-      </div>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis
+              dataKey="type"
+              angle={-45}
+              textAnchor="end"
+              height={55}
+              fontSize={10}
+              interval={0}
+            />
+            <YAxis fontSize={10} />
+            <ChartTooltip content={<ChartTooltipContent />} />
+            <Bar dataKey="count" fill="#3B82F6" radius={8} />
+          </BarChart>
+        </ChartContainer>
+      </CardContent>
     </Card>
   );
 }

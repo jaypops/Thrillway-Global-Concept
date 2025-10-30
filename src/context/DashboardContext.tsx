@@ -6,7 +6,7 @@ const DashboardContext = createContext<DashboardContextType | undefined>(undefin
 
 export function DashboardProvider({ children }: { children: ReactNode }) {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
-  const [selectedTimeframe, setSelectedTimeframe] = useState<"weekly" | "monthly" | "yearly">("monthly");
+  const [selectedTimeframe, setSelectedTimeframe] = useState<"weekly" | "monthly" | "yearly">("yearly");
   const [isLoading, setIsLoading] = useState(true);
   
   const { data: propertyData, isPending: propertyLoading } = useProperty();

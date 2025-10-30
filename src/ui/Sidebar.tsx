@@ -7,6 +7,7 @@ import {
 import { BiMessageSquareDetail } from "react-icons/bi";
 import { NavLink } from "react-router-dom";
 import { IconType } from "react-icons";
+import { useAuth } from "@/context/AuthContext";
 
 interface MenuItem {
   title: string;
@@ -27,11 +28,14 @@ const items: MenuItem[] = [
 ];
 
 export function Sidebar() {
-
+const {user} = useAuth()
+const filteredItems = user?.role === "admin"
+  ? items
+  : items.filter(item => item.title !== "Account Managment");
   return (
     <aside className="h-[100vh] w-64 bg-white rounded-3xl shadow-md p-5 flex flex-col justify-between ml-4">
       <div className="">
-        {items.map((item) => (
+        {filteredItems.map((item) => (
           <nav className="flex-1 overflow-y-auto py-2" key={item.title}>
             <ul className="space-y-1">
               <NavLink
