@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useMemo, type ReactNode } from "react";
 import { DashboardContextType, DashboardData } from "@/services/type";
 import { useProperty } from "@/features/useProperty";
 
@@ -11,18 +11,42 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   
   const { data: propertyData, isPending: propertyLoading } = useProperty();
 
+  const filteredProperties = useMemo(() => {
+    if (!propertyData) return [];
+
+    const now = new Date();
+    const currentYear = now.getFullYear();
+
+    return propertyData.filter(property => {
+     const date = new Date((property as any).createdAt);
+
+      if (selectedTimeframe === "weekly") {
+        const weekAgo = new Date(now);
+        weekAgo.setDate(now.getDate() - 7);
+        return date >= weekAgo;
+      } else if (selectedTimeframe === "monthly") {
+        const monthAgo = new Date(now);
+        monthAgo.setMonth(now.getMonth() - 1);
+        return date >= monthAgo;
+      } else if (selectedTimeframe === "yearly") {
+        return date.getFullYear() === currentYear;
+      }
+      return true;
+    });
+  }, [propertyData, selectedTimeframe]);
+
   useEffect(() => {
     if (propertyData && !propertyLoading) {
-      const processedData = processPropertiesData(propertyData);
+      const processedData = processPropertiesData(filteredProperties, selectedTimeframe);
       setDashboardData(processedData);
       setIsLoading(false);
     }
-  }, [propertyData, propertyLoading]);
+  }, [filteredProperties, propertyLoading, selectedTimeframe, propertyData]);
 
-  const totalProperties = propertyData?.length ?? 0;
-  const totalRevenue = propertyData?.reduce((sum, item) => sum + Number(item.price || 0), 0) ?? 0;
-  const propertiesSold = propertyData?.filter((item) => item.status === "sold").length ?? 0;
-  const propertiesPending = propertyData?.filter((item) => item.status === "pending").length ?? 0;
+  const totalProperties = filteredProperties?.length ?? 0;
+  const totalRevenue = filteredProperties?.reduce((sum, item) => sum + Number(item.price || 0), 0) ?? 0;
+  const propertiesSold = filteredProperties?.filter((item) => item.status === "sold").length ?? 0;
+  const propertiesPending = filteredProperties?.filter((item) => item.status === "pending").length ?? 0;
 
   return (
     <DashboardContext.Provider
@@ -50,17 +74,27 @@ export function useDashboard() {
   return context;
 }
 
-function processPropertiesData(properties: any[]): DashboardData {
+function processPropertiesData(properties: any[], timeframe: "weekly" | "monthly" | "yearly"): DashboardData {
   const propertyStatsMap = new Map<string, {count:number, totalrevenue: number}>();
-  const monthlyData = new Map<string, {properties: number, revenue:number}>();
-  const monthName = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+  const timeData = new Map<string, {properties: number, revenue:number}>();
+  
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
- properties.forEach(property => {
+  properties.forEach(property => {
     const date = new Date(property.createdAt?.$date?.$numberLong ? 
       parseInt(property.createdAt.$date.$numberLong) : property.createdAt);
-    // const year = date.getFullYear();
-    const month = date.getMonth();
-    const monthKey = `${monthName[month]}`;
+    
+    let timeKey: string;
+    
+    if (timeframe === "weekly") {
+      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      timeKey = dayNames[date.getDay()];
+    } else if (timeframe === "monthly") {
+      const weekOfMonth = Math.ceil(date.getDate() / 7);
+      timeKey = `Week ${weekOfMonth}`;
+    } else {
+      timeKey = monthNames[date.getMonth()];
+    }
     
     if (!propertyStatsMap.has(property.propertyType)) {
       propertyStatsMap.set(property.propertyType, { count: 0, totalrevenue: 0 });
@@ -69,28 +103,52 @@ function processPropertiesData(properties: any[]): DashboardData {
     typeStats.count += 1;
     typeStats.totalrevenue += Number(property.price || 0);
     
-    if (!monthlyData.has(monthKey)) {
-      monthlyData.set(monthKey, { properties: 0, revenue: 0 });
+    if (!timeData.has(timeKey)) {
+      timeData.set(timeKey, { properties: 0, revenue: 0 });
     }
-    const monthStats = monthlyData.get(monthKey)!;
-    monthStats.properties += 1;
-    monthStats.revenue += Number(property.price || 0);
+    const timeStats = timeData.get(timeKey)!;
+    timeStats.properties += 1;
+    timeStats.revenue += Number(property.price || 0);
   });
 
   const propertyStats = Array.from(propertyStatsMap.entries()).map(([type, data]) => ({
     type,
     count: data.count,
     revenue: data.totalrevenue,
-    averagePrice: Math.round(data.totalrevenue / data.count)
+    averagePrice: data.count > 0 ? Math.round(data.totalrevenue / data.count) : 0
   }));
 
-  const monthlyTrends = Array.from(monthlyData.entries())
-    .map(([month, data]) => ({
-      month,
-      properties: data.properties,
-      revenue: data.revenue
-    }))
-    .sort((a, b) => monthName.indexOf(a.month) - monthName.indexOf(b.month));
+  let monthlyTrends;
+  if (timeframe === "weekly") {
+    const dayOrder = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    monthlyTrends = Array.from(timeData.entries())
+      .map(([period, data]) => ({
+        month: period,
+        properties: data.properties,
+        revenue: data.revenue
+      }))
+      .sort((a, b) => dayOrder.indexOf(a.month) - dayOrder.indexOf(b.month));
+  } else if (timeframe === "monthly") {
+    monthlyTrends = Array.from(timeData.entries())
+      .map(([period, data]) => ({
+        month: period,
+        properties: data.properties,
+        revenue: data.revenue
+      }))
+      .sort((a, b) => {
+        const weekA = parseInt(a.month.split(' ')[1]);
+        const weekB = parseInt(b.month.split(' ')[1]);
+        return weekA - weekB;
+      });
+  } else {
+    monthlyTrends = Array.from(timeData.entries())
+      .map(([period, data]) => ({
+        month: period,
+        properties: data.properties,
+        revenue: data.revenue
+      }))
+      .sort((a, b) => monthNames.indexOf(a.month) - monthNames.indexOf(b.month));
+  }
 
   return {
     propertyStats,

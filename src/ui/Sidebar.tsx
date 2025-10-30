@@ -27,7 +27,6 @@ const items: MenuItem[] = [
 ];
 
 export function Sidebar() {
-  // const handleClose = () => setOpen(false);
 
   return (
     <aside className="h-[100vh] w-64 bg-white rounded-3xl shadow-md p-5 flex flex-col justify-between ml-4">
@@ -44,7 +43,6 @@ export function Sidebar() {
                       : "text-[#292933]"
                   }`
                 }
-                // onClick={handleClose}
               >
                 <item.icon />
                 <span className="ml-2 text-base font-medium">{item.title}</span>

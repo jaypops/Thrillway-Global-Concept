@@ -31,7 +31,10 @@ export const FileUploader = ({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const newFiles = Array.from(e.target.files);
-      onFileChange([...files, ...newFiles]);
+      // Only pass the new files, let the parent handle merging
+      onFileChange(newFiles);
+      // Reset the input value to allow re-uploading the same file if needed
+      e.target.value = '';
     }
   };
 
@@ -93,25 +96,32 @@ export const FileUploader = ({
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-3 gap-2">
-              {previewUrls.map((url, index) => (
-                <div key={index} className="relative group">
-                  <img
-                    src={url as string}
-                    alt={`Preview ${index + 1}`}
-                    className="h-24 w-full object-cover rounded-md"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onRemove(index)}
-                    className="absolute top-1 right-1 bg-black/70 text-white hover:text-white/70 p-1 rounded-full opacity-100 transition-opacity hover:bg-black/80 cursor-pointer"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
+            <div className="relative">
+              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                {previewUrls.map((url, index) => (
+                  <div key={index} className="relative group flex-shrink-0">
+                    <img
+                      src={url as string}
+                      alt={`Preview ${index + 1}`}
+                      className="h-28 w-28 object-cover rounded-md"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onRemove(index)}
+                      className="absolute top-1 right-1 bg-black/70 text-white hover:text-white/70 p-1 rounded-full opacity-100 transition-opacity hover:bg-black/80 cursor-pointer"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+              {previewUrls.length > 3 && (
+                <p className="text-xs text-muted-foreground mt-1 text-center">
+                  Scroll to see all {previewUrls.length} images →
+                </p>
+              )}
             </div>
           )}
         </div>

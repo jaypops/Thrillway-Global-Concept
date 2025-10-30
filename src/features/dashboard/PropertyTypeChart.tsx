@@ -15,6 +15,7 @@ import {
 import { useDashboard } from "@/context/DashboardContext";
 import { useProperty } from "../useProperty";
 import Loader from "@/ui/Loader";
+import FilterData from "./FilterData";
 
 const chartConfig = {
   count: {
@@ -55,9 +56,14 @@ export function PropertyTypeChart() {
     <Card className="p-1 sm:p-0 shadow-md">
       <div className="pt-6">
         <CardHeader className="space-y-1 sm:space-y-2">
-          <CardTitle className="text-base sm:text-lg">
-            Property Distribution
-          </CardTitle>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 ">
+            <CardTitle className="text-base sm:text-lg">
+              Property Distribution
+            </CardTitle>
+            <div>
+              <FilterData />
+            </div>
+          </div>
           <CardDescription className="text-xs sm:text-sm">
             Number of properties by type
           </CardDescription>

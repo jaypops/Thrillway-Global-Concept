@@ -52,11 +52,14 @@ function LoginForm() {
   const handleCredentialSelect = (username: string, password: string) => {
     form.setValue("username", username);
     form.setValue("password", password);
+    
+    setTimeout(() => {
+      form.handleSubmit(onSubmit)();
+    }, 100);
   };
 
   return (
     <div className="bg-[#fff] w-full h-[100dvh] flex flex-col justify-center items-center px-4 relative">
-      {/* Credentials Dropdown - Top Left */}
       <div className="absolute top-4 left-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -70,7 +73,7 @@ function LoginForm() {
             <DropdownMenuSeparator />
 
             <DropdownMenuItem
-              onClick={() => handleCredentialSelect("", "")}
+              onClick={() => handleCredentialSelect("admin", "admin")}
               className="cursor-pointer"
             >
               <div className="flex flex-col gap-1">
@@ -87,7 +90,7 @@ function LoginForm() {
             <DropdownMenuSeparator />
 
             <DropdownMenuItem
-              onClick={() => handleCredentialSelect("", "")}
+              onClick={() => handleCredentialSelect("FieldAgent", "FieldAgent")}
               className="cursor-pointer"
             >
               <div className="flex flex-col gap-1">
@@ -104,7 +107,7 @@ function LoginForm() {
             <DropdownMenuSeparator />
 
             <DropdownMenuItem
-              onClick={() => handleCredentialSelect("", "")}
+              onClick={() => handleCredentialSelect("CustomerAgent", "CustomerAgent")}
               className="cursor-pointer"
             >
               <div className="flex flex-col gap-1">
@@ -121,7 +124,6 @@ function LoginForm() {
         </DropdownMenu>
       </div>
 
-      {/* Login Form */}
       <span className="py-4 flex flex-col justify-center items-center">
         <h1>LOGO</h1>
         <p className="font-semibold">Log in to your account</p>
