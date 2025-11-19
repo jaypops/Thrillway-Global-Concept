@@ -28,13 +28,26 @@ const items: MenuItem[] = [
 ];
 
 export function Sidebar() {
-const {user} = useAuth()
-const filteredItems = user?.role === "admin"
-  ? items
-  : items.filter(item => item.title !== "Account Managment");
+  const { user } = useAuth();
+
+  const isAdmin = user?.role === "admin";
+  const isCustomerAgent = user?.role === "customerAgent";
+
+  let filteredItems = items;
+
+  if (!isAdmin) {
+    filteredItems = filteredItems.filter(
+      (item) => item.title !== "Account Managment"
+    );
+  }
+
+  if (!isAdmin && !isCustomerAgent) {
+    filteredItems = filteredItems.filter((item) => item.title !== "Messages");
+  }
+
   return (
     <aside className="h-[100vh] w-64 bg-white rounded-3xl shadow-md p-5 flex flex-col justify-between ml-4">
-      <div className="">
+      <div>
         {filteredItems.map((item) => (
           <nav className="flex-1 overflow-y-auto py-2" key={item.title}>
             <ul className="space-y-1">
